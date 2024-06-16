@@ -54,8 +54,10 @@ TEST_CASE("checksum") {
     REQUIRE(ref == csum_adx_align);
     auto csum_adx_align2 = checksum_adx_align2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_adx_align2);
+#if !__clang__
     auto csum_avx2 = checksum_avx2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_avx2);
+#endif
 }
 
 // https://github.com/snabbco/snabb/commit/0068df61213d030ac6064f0d5db8705373e7e3c7
@@ -77,8 +79,10 @@ TEST_CASE("checksum-carry") {
     REQUIRE(ref == csum_adx_align);
     auto csum_adx_align2 = checksum_adx_align2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_adx_align2);
+#if !__clang__
     auto csum_avx2 = checksum_avx2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_avx2);
+#endif
 }
 
 TEST_CASE("checksum-align") {
@@ -100,8 +104,10 @@ TEST_CASE("checksum-align") {
     REQUIRE(ref == csum_adx_align);
     auto csum_adx_align2 = checksum_adx_align2(&pkt[off], size, 0);
     REQUIRE(ref == csum_adx_align2);
+#if !__clang__
     auto csum_avx2 = checksum_avx2(&pkt[off], size, 0);
     REQUIRE(ref == csum_avx2);
+#endif
 }
 
 TEST_CASE("checksum-bench") {
@@ -128,7 +134,9 @@ TEST_CASE("checksum-bench") {
     BENCHMARK("adx_align2") {
         return checksum_adx_align2(pkt.data(), pkt.size(), 0);
     };
+#if !__clang__
     BENCHMARK("avx2") {
         return checksum_avx2(pkt.data(), pkt.size(), 0);
     };
+#endif
 }

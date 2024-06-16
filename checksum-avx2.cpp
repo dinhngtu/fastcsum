@@ -6,6 +6,8 @@
 #include "checksum.hpp"
 #include "addc.hpp"
 
+#if !__clang__
+
 uint64_t checksum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
     uint64_t ac = initial;
     uint64_t carry = 0;
@@ -125,3 +127,5 @@ uint64_t checksum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
 
     return ac;
 }
+
+#endif
