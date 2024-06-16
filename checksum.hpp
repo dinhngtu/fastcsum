@@ -4,7 +4,7 @@
 #include <cstddef>
 
 uint64_t checksum_nofold_generic(const uint8_t *b, size_t size, uint64_t initial);
-extern "C" uint64_t checksum_raw_nofold_x64(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" uint64_t checksum_raw_nofold_adx(const uint8_t *ptr, size_t size, uint64_t initial);
 
 static inline uint16_t fold_complement_checksum(uint64_t initial) {
     uint32_t ac32;
@@ -27,6 +27,6 @@ static inline uint16_t checksum(const uint8_t *b, size_t size, uint64_t initial)
 }
 
 static inline uint16_t checksum_adx(const uint8_t *b, size_t size, uint64_t initial) {
-    auto ac = checksum_raw_nofold_x64(b, size, initial);
+    auto ac = checksum_raw_nofold_adx(b, size, initial);
     return fold_complement_checksum(ac);
 }
