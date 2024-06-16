@@ -50,6 +50,8 @@ TEST_CASE("checksum") {
     REQUIRE(ref == csum_adx);
     auto csum_adx_v2 = checksum_adx_v2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_adx_v2);
+    auto csum_adx_align = checksum_adx_align(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_adx_align);
 }
 
 // https://github.com/snabbco/snabb/commit/0068df61213d030ac6064f0d5db8705373e7e3c7
@@ -67,6 +69,27 @@ TEST_CASE("checksum-carry") {
     REQUIRE(ref == csum_adx);
     auto csum_adx_v2 = checksum_adx_v2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_adx_v2);
+    auto csum_adx_align = checksum_adx_align(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_adx_align);
+}
+
+TEST_CASE("checksum-align") {
+    auto pkt = create_packet(1627);
+    auto off = GENERATE(range(0, 128));
+    auto size = GENERATE(range(1, 1627 - 127));
+    auto ref = checksum_ref(reinterpret_cast<uint16_t *>(&pkt[off]), size);
+    auto csum_generic = checksum_generic(&pkt[off], size, 0);
+    REQUIRE(ref == csum_generic);
+    auto csum_x64_128b = checksum_x64_128b(&pkt[off], size, 0);
+    REQUIRE(ref == csum_x64_128b);
+    auto csum_x64_64b = checksum_x64_64b(&pkt[off], size, 0);
+    REQUIRE(ref == csum_x64_64b);
+    auto csum_adx = checksum_adx(&pkt[off], size, 0);
+    REQUIRE(ref == csum_adx);
+    auto csum_adx_v2 = checksum_adx_v2(&pkt[off], size, 0);
+    REQUIRE(ref == csum_adx_v2);
+    auto csum_adx_align = checksum_adx_align(&pkt[off], size, 0);
+    REQUIRE(ref == csum_adx_align);
 }
 
 TEST_CASE("checksum-bench") {
@@ -86,5 +109,8 @@ TEST_CASE("checksum-bench") {
     };
     BENCHMARK("adx_v2") {
         return checksum_adx_v2(pkt.data(), pkt.size(), 0);
+    };
+    BENCHMARK("adx_align") {
+        return checksum_adx_align(pkt.data(), pkt.size(), 0);
     };
 }

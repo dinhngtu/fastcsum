@@ -10,6 +10,7 @@ extern "C" uint64_t checksum_raw_nofold_x64_128b(const uint8_t *ptr, size_t size
 extern "C" uint64_t checksum_raw_nofold_x64_64b(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t checksum_raw_nofold_adx(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t checksum_raw_nofold_adx_v2(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" uint64_t checksum_raw_nofold_adx_align(const uint8_t *ptr, size_t size, uint64_t initial);
 
 static inline uint16_t fold_complement_checksum(uint64_t initial) {
     uint32_t ac32;
@@ -48,5 +49,10 @@ static inline uint16_t checksum_adx(const uint8_t *b, size_t size, uint64_t init
 
 static inline uint16_t checksum_adx_v2(const uint8_t *b, size_t size, uint64_t initial) {
     auto ac = checksum_raw_nofold_adx_v2(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+static inline uint16_t checksum_adx_align(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = checksum_raw_nofold_adx_align(b, size, initial);
     return fold_complement_checksum(ac);
 }
