@@ -41,32 +41,28 @@ TEST_CASE("checksum") {
     auto pkt = create_packet(size);
     auto ref = checksum_ref(reinterpret_cast<uint16_t *>(pkt.data()), pkt.size());
     auto csum = checksum(pkt.data(), pkt.size(), 0);
-    REQUIRE(csum == ref);
+    REQUIRE(ref == csum);
+    auto csum_x64 = checksum<checksum_raw_nofold_x64>(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_x64);
+    auto csum_x64_64b = checksum<checksum_raw_nofold_x64_64b>(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_x64_64b);
+    auto csum_adx = checksum<checksum_raw_nofold_adx>(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_adx);
 }
 
 // https://github.com/snabbco/snabb/commit/0068df61213d030ac6064f0d5db8705373e7e3c7
-TEST_CASE("checksum_carry") {
+TEST_CASE("checksum-carry") {
     auto size = GENERATE(Catch::Generators::range(1, 64));
     auto pkt = create_packet_carry(size);
     auto ref = checksum_ref(reinterpret_cast<uint16_t *>(pkt.data()), pkt.size());
     auto csum = checksum(pkt.data(), pkt.size(), 0);
-    REQUIRE(csum == ref);
-}
-
-TEST_CASE("checksum-adx") {
-    auto size = GENERATE(Catch::Generators::range(1, 1501));
-    auto pkt = create_packet(size);
-    auto ref = checksum_ref(reinterpret_cast<uint16_t *>(pkt.data()), pkt.size());
-    auto csum = checksum_adx(pkt.data(), pkt.size(), 0);
-    REQUIRE(csum == ref);
-}
-
-TEST_CASE("checksum-adx_carry") {
-    auto size = GENERATE(Catch::Generators::range(1, 64));
-    auto pkt = create_packet_carry(size);
-    auto ref = checksum_ref(reinterpret_cast<uint16_t *>(pkt.data()), pkt.size());
-    auto csum = checksum_adx(pkt.data(), pkt.size(), 0);
-    REQUIRE(csum == ref);
+    REQUIRE(ref == csum);
+    auto csum_x64 = checksum<checksum_raw_nofold_x64>(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_x64);
+    auto csum_x64_64b = checksum<checksum_raw_nofold_x64_64b>(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_x64_64b);
+    auto csum_adx = checksum<checksum_raw_nofold_adx>(pkt.data(), pkt.size(), 0);
+    REQUIRE(ref == csum_adx);
 }
 
 TEST_CASE("checksum-bench") {
@@ -75,7 +71,13 @@ TEST_CASE("checksum-bench") {
     BENCHMARK("generic") {
         return checksum(pkt.data(), pkt.size(), 0);
     };
+    BENCHMARK("x64_128b") {
+        return checksum<checksum_raw_nofold_x64>(pkt.data(), pkt.size(), 0);
+    };
+    BENCHMARK("x64_64b") {
+        return checksum<checksum_raw_nofold_x64_64b>(pkt.data(), pkt.size(), 0);
+    };
     BENCHMARK("adx") {
-        return checksum_adx(pkt.data(), pkt.size(), 0);
+        return checksum<checksum_raw_nofold_adx>(pkt.data(), pkt.size(), 0);
     };
 }
