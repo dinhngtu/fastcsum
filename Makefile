@@ -14,7 +14,7 @@ else
 endif
 
 OBJECTS=\
-	checksum-generic.o \
+	checksum-generic64.o \
 	checksum-x64-128b.o \
 	checksum-x64-64b.o \
 	checksum-adx.o \

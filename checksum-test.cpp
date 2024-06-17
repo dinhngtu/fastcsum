@@ -50,7 +50,7 @@ TEST_CASE("checksum") {
     auto size = GENERATE(Catch::Generators::range(1, 1501));
     auto pkt = create_packet(size);
     auto ref = checksum_ref(pkt.data(), pkt.size());
-    TEST_CSUM(ref, impl::fastcsum_nofold_generic, pkt.data(), pkt.size(), 0);
+    TEST_CSUM(ref, impl::fastcsum_nofold_generic64, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
@@ -66,7 +66,7 @@ TEST_CASE("checksum-carry") {
     auto size = GENERATE(Catch::Generators::range(1, 64));
     auto pkt = create_packet_carry(size);
     auto ref = checksum_ref(pkt.data(), pkt.size());
-    TEST_CSUM(ref, impl::fastcsum_nofold_generic, pkt.data(), pkt.size(), 0);
+    TEST_CSUM(ref, impl::fastcsum_nofold_generic64, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
@@ -82,7 +82,7 @@ TEST_CASE("checksum-align") {
     auto off = GENERATE(range(0, 128));
     auto size = GENERATE(range(1, 1627 - 127));
     auto ref = checksum_ref(&pkt[off], size);
-    TEST_CSUM(ref, impl::fastcsum_nofold_generic, &pkt[off], size, 0);
+    TEST_CSUM(ref, impl::fastcsum_nofold_generic64, &pkt[off], size, 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, &pkt[off], size, 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, &pkt[off], size, 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_adx, &pkt[off], size, 0);
@@ -99,7 +99,7 @@ TEST_CASE("checksum-rfc1071") {
     // whereas 0xddf2 is the folded, non-complemented sum in network order
     uint16_t sum_rfc1071 = 0xddf2;
     uint16_t ref = ntohs(~sum_rfc1071);
-    TEST_CSUM(ref, impl::fastcsum_nofold_generic, pkt.data(), pkt.size(), 0);
+    TEST_CSUM(ref, impl::fastcsum_nofold_generic64, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
@@ -114,7 +114,7 @@ TEST_CASE("checksum-bench") {
     auto size = GENERATE(40, 128, 576, 1500);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
-        return fold_complement_checksum(impl::fastcsum_nofold_generic(pkt.data(), pkt.size(), 0));
+        return fold_complement_checksum(impl::fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
     };
     BENCHMARK("x64_128b") {
         return fold_complement_checksum(impl::fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
