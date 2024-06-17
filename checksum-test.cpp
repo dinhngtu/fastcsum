@@ -59,8 +59,10 @@ TEST_CASE("checksum") {
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
     }
-    if (impl::fastcsum_has_avx2())
+    if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
+    }
 }
 
 // https://github.com/snabbco/snabb/commit/0068df61213d030ac6064f0d5db8705373e7e3c7
@@ -77,8 +79,10 @@ TEST_CASE("checksum-carry") {
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
     }
-    if (impl::fastcsum_has_avx2())
+    if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
+    }
 }
 
 TEST_CASE("checksum-align") {
@@ -95,8 +99,10 @@ TEST_CASE("checksum-align") {
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, &pkt[off], size, 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, &pkt[off], size, 0);
     }
-    if (impl::fastcsum_has_avx2())
+    if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, &pkt[off], size, 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, &pkt[off], size, 0);
+    }
 }
 
 TEST_CASE("checksum-rfc1071") {
@@ -114,8 +120,10 @@ TEST_CASE("checksum-rfc1071") {
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
     }
-    if (impl::fastcsum_has_avx2())
+    if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
+    }
 }
 
 TEST_CASE("checksum-bench") {
@@ -147,6 +155,9 @@ TEST_CASE("checksum-bench") {
     if (impl::fastcsum_has_avx2()) {
         BENCHMARK("avx2") {
             return fold_complement_checksum(impl::fastcsum_nofold_avx2(pkt.data(), pkt.size(), 0));
+        };
+        BENCHMARK("avx2_align") {
+            return fold_complement_checksum(impl::fastcsum_nofold_avx2_align(pkt.data(), pkt.size(), 0));
         };
     }
 }
