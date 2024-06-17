@@ -5,7 +5,6 @@
 #include <immintrin.h>
 
 #include "fastcsum.hpp"
-#include "addc.hpp"
 
 #if __AVX2__ && !defined(__clang__)
 #define _fastcsum_has_avx2 1
@@ -24,8 +23,8 @@ bool fastcsum_has_avx2() {
 }
 
 uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
-    uint64_t ac = initial;
-    uint64_t carry = 0;
+    unsigned long long ac = initial;
+    unsigned char carry = 0;
     __m256i vac{};
     __m256i vdt, vsum, vcarry;
     __m256i mask = _mm256_set1_epi32(0x80000000);
@@ -106,39 +105,39 @@ uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
 
     __v4di out[4];
     _mm256_store_si256(&out[0], vac);
-    ac = addc(ac, vac[0], 0, &carry);
-    ac = addc(ac, vac[1], carry, &carry);
-    ac = addc(ac, vac[2], carry, &carry);
-    ac = addc(ac, vac[3], carry, &carry);
+    carry = _addcarry_u64(0, ac, vac[0], &ac);
+    carry = _addcarry_u64(carry, ac, vac[1], &ac);
+    carry = _addcarry_u64(carry, ac, vac[2], &ac);
+    carry = _addcarry_u64(carry, ac, vac[3], &ac);
     ac += carry;
 
     if (size >= 16) {
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[8]), carry, &carry);
+        carry = _addcarry_u64(0, ac, *reinterpret_cast<const uint64_t *>(&b[0]), &ac);
+        carry = _addcarry_u64(carry, ac, *reinterpret_cast<const uint64_t *>(&b[8]), &ac);
         ac += carry;
         b += 16;
         size -= 16;
     }
     if (size >= 8) {
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
+        carry = _addcarry_u64(0, ac, *reinterpret_cast<const uint64_t *>(&b[0]), &ac);
         ac += carry;
         b += 8;
         size -= 8;
     }
     if (size >= 4) {
-        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint32_t *>(&b[0])), 0, &carry);
+        carry = _addcarry_u64(0, ac, static_cast<uint64_t>(*reinterpret_cast<const uint32_t *>(&b[0])), &ac);
         ac += carry;
         b += 4;
         size -= 4;
     }
     if (size >= 2) {
-        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint16_t *>(&b[0])), 0, &carry);
+        carry = _addcarry_u64(0, ac, static_cast<uint64_t>(*reinterpret_cast<const uint16_t *>(&b[0])), &ac);
         ac += carry;
         b += 2;
         size -= 2;
     }
     if (size) {
-        ac = addc(ac, static_cast<uint64_t>(b[0]), 0, &carry);
+        carry = _addcarry_u64(0, ac, static_cast<uint64_t>(b[0]), &ac);
         ac += carry;
     }
 
