@@ -53,10 +53,12 @@ TEST_CASE("checksum") {
     TEST_CSUM(ref, impl::fastcsum_nofold_generic64, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
+    if (impl::fastcsum_has_adx()) {
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
+    }
     if (impl::fastcsum_has_avx2())
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
 }
@@ -69,10 +71,12 @@ TEST_CASE("checksum-carry") {
     TEST_CSUM(ref, impl::fastcsum_nofold_generic64, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
+    if (impl::fastcsum_has_adx()) {
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
+    }
     if (impl::fastcsum_has_avx2())
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
 }
@@ -85,10 +89,12 @@ TEST_CASE("checksum-align") {
     TEST_CSUM(ref, impl::fastcsum_nofold_generic64, &pkt[off], size, 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, &pkt[off], size, 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, &pkt[off], size, 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx, &pkt[off], size, 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, &pkt[off], size, 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, &pkt[off], size, 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, &pkt[off], size, 0);
+    if (impl::fastcsum_has_adx()) {
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx, &pkt[off], size, 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, &pkt[off], size, 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, &pkt[off], size, 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, &pkt[off], size, 0);
+    }
     if (impl::fastcsum_has_avx2())
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, &pkt[off], size, 0);
 }
@@ -102,10 +108,12 @@ TEST_CASE("checksum-rfc1071") {
     TEST_CSUM(ref, impl::fastcsum_nofold_generic64, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_128b, pkt.data(), pkt.size(), 0);
     TEST_CSUM(ref, impl::fastcsum_nofold_x64_64b, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
-    TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
+    if (impl::fastcsum_has_adx()) {
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_v2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_adx_align2, pkt.data(), pkt.size(), 0);
+    }
     if (impl::fastcsum_has_avx2())
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
 }
@@ -122,18 +130,20 @@ TEST_CASE("checksum-bench") {
     BENCHMARK("x64_64b") {
         return fold_complement_checksum(impl::fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
-    BENCHMARK("adx") {
-        return fold_complement_checksum(impl::fastcsum_nofold_adx(pkt.data(), pkt.size(), 0));
-    };
-    BENCHMARK("adx_v2") {
-        return fold_complement_checksum(impl::fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
-    };
-    BENCHMARK("adx_align") {
-        return fold_complement_checksum(impl::fastcsum_nofold_adx_align(pkt.data(), pkt.size(), 0));
-    };
-    BENCHMARK("adx_align2") {
-        return fold_complement_checksum(impl::fastcsum_nofold_adx_align2(pkt.data(), pkt.size(), 0));
-    };
+    if (impl::fastcsum_has_adx()) {
+        BENCHMARK("adx") {
+            return fold_complement_checksum(impl::fastcsum_nofold_adx(pkt.data(), pkt.size(), 0));
+        };
+        BENCHMARK("adx_v2") {
+            return fold_complement_checksum(impl::fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
+        };
+        BENCHMARK("adx_align") {
+            return fold_complement_checksum(impl::fastcsum_nofold_adx_align(pkt.data(), pkt.size(), 0));
+        };
+        BENCHMARK("adx_align2") {
+            return fold_complement_checksum(impl::fastcsum_nofold_adx_align2(pkt.data(), pkt.size(), 0));
+        };
+    }
     if (impl::fastcsum_has_avx2()) {
         BENCHMARK("avx2") {
             return fold_complement_checksum(impl::fastcsum_nofold_avx2(pkt.data(), pkt.size(), 0));
