@@ -17,6 +17,7 @@ OBJECTS=\
 	checksum-generic64.o \
 	checksum-x64-128b.o \
 	checksum-x64-64b.o \
+	cpuid.o \
 	checksum-adx.o \
 	checksum-adx-v2.o \
 	checksum-adx-align.o \

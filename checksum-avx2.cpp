@@ -20,7 +20,7 @@ namespace impl {
 
 bool fastcsum_has_avx2() {
     unsigned int eax, ebx, ecx, edx;
-    return __get_cpuid(7, &eax, &ebx, &ecx, &edx) && !!(ebx & bit_AVX2);
+    return __get_cpuid_count(7, 0, &eax, &ebx, &ecx, &edx) && (ebx & bit_AVX2);
 }
 
 uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
