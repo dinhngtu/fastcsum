@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <cstdlib>
+#include <cpuid.h>
 #include <immintrin.h>
 
 #include "fastcsum.hpp"
@@ -18,7 +19,8 @@ namespace impl {
 #if _fastcsum_has_avx2
 
 bool fastcsum_has_avx2() {
-    return true;
+    unsigned int eax, ebx, ecx, edx;
+    return __get_cpuid(7, &eax, &ebx, &ecx, &edx) && !!(ebx & bit_AVX2);
 }
 
 uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
@@ -28,7 +30,7 @@ uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
     __m256i vdt, vsum, vcarry;
     __m256i mask = _mm256_set1_epi32(0x80000000);
     //__m256i cmask = _mm256_set1_epi32(1);
-    bool needs_flip = false;
+    // bool needs_flip = false;
 
     /*
     if (size >= 32) {
@@ -140,9 +142,8 @@ uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
         ac += carry;
     }
 
-    if (needs_flip)
-        // ac = __builtin_bswap64(ac);
-        ;
+    // if (needs_flip)
+    //  ac = __builtin_bswap64(ac);
 
     return ac;
 }
