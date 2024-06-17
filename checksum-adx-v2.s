@@ -1,8 +1,8 @@
 .intel_syntax noprefix
 
-.global checksum_raw_nofold_adx_v2
+.global fastcsum_nofold_adx_v2
 
-checksum_raw_nofold_adx_v2:
+fastcsum_nofold_adx_v2:
     # rdi: byte ptr
     # rsi: size
     # rdx: initial

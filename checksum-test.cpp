@@ -5,7 +5,51 @@
 
 #include "catch_amalgamated.hpp"
 
-#include "checksum.hpp"
+#include "fastcsum.hpp"
+
+using namespace fastcsum;
+
+static inline uint16_t checksum_generic(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = impl::fastcsum_nofold_generic(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+static inline uint16_t checksum_x64_128b(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = impl::fastcsum_nofold_x64_128b(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+static inline uint16_t checksum_x64_64b(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = impl::fastcsum_nofold_x64_64b(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+static inline uint16_t checksum_adx(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = impl::fastcsum_nofold_adx(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+static inline uint16_t checksum_adx_v2(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = impl::fastcsum_nofold_adx_v2(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+static inline uint16_t checksum_adx_align(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = impl::fastcsum_nofold_adx_align(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+static inline uint16_t checksum_adx_align2(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = impl::fastcsum_nofold_adx_align2(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+
+#if _fastcsum_has_avx2
+static inline uint16_t checksum_avx2(const uint8_t *b, size_t size, uint64_t initial) {
+    auto ac = fastcsum_nofold_avx2(b, size, initial);
+    return fold_complement_checksum(ac);
+}
+#endif
 
 // https://stackoverflow.com/a/8845286/8642889
 static uint16_t checksum_ref(const uint16_t *buffer, int size) {
@@ -54,7 +98,7 @@ TEST_CASE("checksum") {
     REQUIRE(ref == csum_adx_align);
     auto csum_adx_align2 = checksum_adx_align2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_adx_align2);
-#if !__clang__
+#if _fastcsum_has_avx2
     auto csum_avx2 = checksum_avx2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_avx2);
 #endif
@@ -79,7 +123,7 @@ TEST_CASE("checksum-carry") {
     REQUIRE(ref == csum_adx_align);
     auto csum_adx_align2 = checksum_adx_align2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_adx_align2);
-#if !__clang__
+#if _fastcsum_has_avx2
     auto csum_avx2 = checksum_avx2(pkt.data(), pkt.size(), 0);
     REQUIRE(ref == csum_avx2);
 #endif
@@ -104,7 +148,7 @@ TEST_CASE("checksum-align") {
     REQUIRE(ref == csum_adx_align);
     auto csum_adx_align2 = checksum_adx_align2(&pkt[off], size, 0);
     REQUIRE(ref == csum_adx_align2);
-#if !__clang__
+#if _fastcsum_has_avx2
     auto csum_avx2 = checksum_avx2(&pkt[off], size, 0);
     REQUIRE(ref == csum_avx2);
 #endif
@@ -134,7 +178,7 @@ TEST_CASE("checksum-bench") {
     BENCHMARK("adx_align2") {
         return checksum_adx_align2(pkt.data(), pkt.size(), 0);
     };
-#if !__clang__
+#if _fastcsum_has_avx2
     BENCHMARK("avx2") {
         return checksum_avx2(pkt.data(), pkt.size(), 0);
     };

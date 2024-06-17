@@ -3,12 +3,15 @@
 #include <immintrin.h>
 #include <boost/endian.hpp>
 
-#include "checksum.hpp"
+#include "fastcsum.hpp"
 #include "addc.hpp"
 
-#if !__clang__
+namespace fastcsum {
+namespace impl {
 
-uint64_t checksum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
+#if _fastcsum_has_avx2
+
+uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
     uint64_t ac = initial;
     uint64_t carry = 0;
     __m256i vac{};
@@ -129,3 +132,6 @@ uint64_t checksum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
 }
 
 #endif
+
+} // namespace impl
+} // namespace fastcsum

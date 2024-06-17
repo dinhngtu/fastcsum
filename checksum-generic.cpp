@@ -1,7 +1,10 @@
-#include "checksum.hpp"
+#include "fastcsum.hpp"
 #include "addc.hpp"
 
-uint64_t checksum_nofold_generic(const uint8_t *b, size_t size, uint64_t initial) {
+namespace fastcsum {
+namespace impl {
+
+uint64_t fastcsum_nofold_generic(const uint8_t *b, size_t size, uint64_t initial) {
     uint64_t ac = initial;
     uint64_t carry = 0;
 
@@ -46,3 +49,6 @@ uint64_t checksum_nofold_generic(const uint8_t *b, size_t size, uint64_t initial
 
     return ac;
 }
+
+} // namespace impl
+} // namespace fastcsum
