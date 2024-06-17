@@ -12,8 +12,7 @@ using namespace fastcsum;
 
 #define TEST_CSUM(ref, impl, b, size, initial) \
     do { \
-        auto ac = impl((b), (size), (initial)); \
-        REQUIRE((ref) == fold_complement_checksum(ac)); \
+        REQUIRE((ref) == fold_complement_checksum(impl((b), (size), (initial)))); \
     } while (0);
 
 // https://stackoverflow.com/a/8845286/8642889
@@ -63,12 +62,13 @@ TEST_CASE("checksum") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_256b, pkt.data(), pkt.size(), 0);
     }
 }
 
 // https://github.com/snabbco/snabb/commit/0068df61213d030ac6064f0d5db8705373e7e3c7
 TEST_CASE("checksum-carry") {
-    auto size = GENERATE(Catch::Generators::range(1, 64));
+    auto size = GENERATE(Catch::Generators::range(1, 1025));
     auto pkt = create_packet_carry(size);
     auto ref = checksum_ref(pkt.data(), pkt.size());
     TEST_CSUM(ref, impl::fastcsum_nofold_generic64, pkt.data(), pkt.size(), 0);
@@ -84,6 +84,7 @@ TEST_CASE("checksum-carry") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_256b, pkt.data(), pkt.size(), 0);
     }
 }
 
@@ -105,6 +106,7 @@ TEST_CASE("checksum-align") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, &pkt[off], size, 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, &pkt[off], size, 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, &pkt[off], size, 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_256b, &pkt[off], size, 0);
     }
 }
 
@@ -127,11 +129,12 @@ TEST_CASE("checksum-rfc1071") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_256b, pkt.data(), pkt.size(), 0);
     }
 }
 
 TEST_CASE("checksum-bench") {
-    //auto size = GENERATE(40, 128, 576, 1500);
+    // auto size = GENERATE(40, 128, 576, 1500);
     auto size = GENERATE(1500, 2048, 4096);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
@@ -166,6 +169,9 @@ TEST_CASE("checksum-bench") {
         };
         BENCHMARK("avx2_v2") {
             return fold_complement_checksum(impl::fastcsum_nofold_avx2_v2(pkt.data(), pkt.size(), 0));
+        };
+        BENCHMARK("avx2_256b") {
+            return fold_complement_checksum(impl::fastcsum_nofold_avx2_256b(pkt.data(), pkt.size(), 0));
         };
     }
 }
