@@ -237,6 +237,13 @@ uint64_t fastcsum_nofold_avx2(
     abort();
 }
 
+uint64_t fastcsum_nofold_avx2_align(
+    [[maybe_unused]] const uint8_t *b,
+    [[maybe_unused]] size_t size,
+    [[maybe_unused]] uint64_t initial) {
+    abort();
+}
+
 #endif
 
 } // namespace impl
