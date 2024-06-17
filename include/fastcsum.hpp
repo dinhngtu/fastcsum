@@ -20,6 +20,7 @@ extern "C" uint64_t fastcsum_nofold_adx_align2(const uint8_t *ptr, size_t size, 
 bool fastcsum_has_avx2();
 uint64_t fastcsum_nofold_avx2(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_avx2_align(const uint8_t *ptr, size_t size, uint64_t initial);
+uint64_t fastcsum_nofold_avx2_v2(const uint8_t *ptr, size_t size, uint64_t initial);
 
 } // namespace impl
 

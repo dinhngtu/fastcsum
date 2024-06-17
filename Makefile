@@ -1,7 +1,7 @@
 CPPFLAGS+=-MMD -MP -Iinclude
 CXXFLAGS+=-Wall -Wextra -Wformat=2 -Werror=shadow -Werror=return-type -std=c++14 -fwrapv
 
-USE_AVX?=0
+USE_AVX2?=0
 
 ifeq ($(DEBUG), 1)
 	CPPFLAGS+=-DDEBUG=1
@@ -24,7 +24,7 @@ OBJECTS=\
 	checksum-adx-align2.o \
 	checksum-avx2.o \
 
-ifeq ($(USE_AVX), 1)
+ifeq ($(USE_AVX2), 1)
 checksum-avx2.o: CXXFLAGS+=-mavx2
 endif
 

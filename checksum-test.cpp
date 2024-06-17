@@ -62,6 +62,7 @@ TEST_CASE("checksum") {
     if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, pkt.data(), pkt.size(), 0);
     }
 }
 
@@ -82,6 +83,7 @@ TEST_CASE("checksum-carry") {
     if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, pkt.data(), pkt.size(), 0);
     }
 }
 
@@ -102,6 +104,7 @@ TEST_CASE("checksum-align") {
     if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, &pkt[off], size, 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, &pkt[off], size, 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, &pkt[off], size, 0);
     }
 }
 
@@ -123,11 +126,13 @@ TEST_CASE("checksum-rfc1071") {
     if (impl::fastcsum_has_avx2()) {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_align, pkt.data(), pkt.size(), 0);
+        TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v2, pkt.data(), pkt.size(), 0);
     }
 }
 
 TEST_CASE("checksum-bench") {
-    auto size = GENERATE(40, 128, 576, 1500);
+    //auto size = GENERATE(40, 128, 576, 1500);
+    auto size = GENERATE(1500, 2048, 4096);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
         return fold_complement_checksum(impl::fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
@@ -158,6 +163,9 @@ TEST_CASE("checksum-bench") {
         };
         BENCHMARK("avx2_align") {
             return fold_complement_checksum(impl::fastcsum_nofold_avx2_align(pkt.data(), pkt.size(), 0));
+        };
+        BENCHMARK("avx2_v2") {
+            return fold_complement_checksum(impl::fastcsum_nofold_avx2_v2(pkt.data(), pkt.size(), 0));
         };
     }
 }
