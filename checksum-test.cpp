@@ -68,6 +68,8 @@ TEST_CASE("checksum") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v4, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v5, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v6, pkt.data(), pkt.size(), 0);
+
+        TEST_CSUM(ref, impl::fastcsum_nofold_vec256, pkt.data(), pkt.size(), 0);
     }
 }
 
@@ -94,6 +96,8 @@ TEST_CASE("checksum-carry") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v4, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v5, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v6, pkt.data(), pkt.size(), 0);
+
+        TEST_CSUM(ref, impl::fastcsum_nofold_vec256, pkt.data(), pkt.size(), 0);
     }
 }
 
@@ -120,6 +124,8 @@ TEST_CASE("checksum-align") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v4, &pkt[off], size, 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v5, &pkt[off], size, 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v6, &pkt[off], size, 0);
+
+        TEST_CSUM(ref, impl::fastcsum_nofold_vec256, &pkt[off], size, 0);
     }
 }
 
@@ -147,6 +153,8 @@ TEST_CASE("checksum-rfc1071") {
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v4, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v5, pkt.data(), pkt.size(), 0);
         TEST_CSUM(ref, impl::fastcsum_nofold_avx2_v6, pkt.data(), pkt.size(), 0);
+
+        TEST_CSUM(ref, impl::fastcsum_nofold_vec256, pkt.data(), pkt.size(), 0);
     }
 }
 
@@ -207,6 +215,10 @@ TEST_CASE("checksum-bench") {
         };
         BENCHMARK("avx2_v6") {
             return fold_complement_checksum(impl::fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
+        };
+
+        BENCHMARK("vec256") {
+            return fold_complement_checksum(impl::fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
         };
     }
 }

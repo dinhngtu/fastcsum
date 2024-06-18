@@ -26,9 +26,10 @@ OBJECTS=\
 	checksum-avx2-v3.o \
 	checksum-avx2-v5.o \
 	checksum-avx2-v6.o \
+	checksum-vec256.o \
 
 ifeq ($(USE_AVX2), 1)
-checksum-avx2.o: CXXFLAGS+=-mavx2
+cpuid.o checksum-avx2.o checksum-vec256.o: CXXFLAGS+=-mavx2
 endif
 
 DEPS=$(OBJECTS:.o=.d)

@@ -27,6 +27,8 @@ uint64_t fastcsum_nofold_avx2_v4(const uint8_t *ptr, size_t size, uint64_t initi
 extern "C" uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uint64_t initial);
 
+extern "C" uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initial);
+
 } // namespace impl
 
 // returns folded, complemented checksum in native byte order
