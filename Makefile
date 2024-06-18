@@ -23,6 +23,9 @@ OBJECTS=\
 	checksum-adx-align.o \
 	checksum-adx-align2.o \
 	checksum-avx2.o \
+	checksum-avx2-v3.o \
+	checksum-avx2-v5.o \
+	checksum-avx2-v6.o \
 
 ifeq ($(USE_AVX2), 1)
 checksum-avx2.o: CXXFLAGS+=-mavx2
