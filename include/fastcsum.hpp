@@ -5,19 +5,28 @@
 
 namespace fastcsum {
 
-namespace impl {
-
 uint64_t fastcsum_nofold_generic64(const uint8_t *b, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_x64_128b(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_x64_64b(const uint8_t *ptr, size_t size, uint64_t initial);
 
-bool fastcsum_has_adx();
+bool fastcsum_built_with_adx();
+bool fastcsum_cpu_has_adx();
+static inline bool fastcsum_adx_usable() {
+    return fastcsum_built_with_adx() && fastcsum_cpu_has_adx();
+}
+
 extern "C" uint64_t fastcsum_nofold_adx(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_adx_v2(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_adx_align(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_adx_align2(const uint8_t *ptr, size_t size, uint64_t initial);
 
-bool fastcsum_has_avx2();
+bool fastcsum_built_with_avx2();
+bool fastcsum_cpu_has_avx2();
+static inline bool fastcsum_avx2_usable() {
+    return fastcsum_built_with_avx2() && fastcsum_cpu_has_avx2();
+}
+
+bool fastcsum_cpu_has_avx();
 uint64_t fastcsum_nofold_avx2(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_avx2_align(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_avx2_v2(const uint8_t *ptr, size_t size, uint64_t initial);
@@ -27,12 +36,13 @@ uint64_t fastcsum_nofold_avx2_v4(const uint8_t *ptr, size_t size, uint64_t initi
 extern "C" uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uint64_t initial);
 
-extern "C" uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initial);
+uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initial);
 
-} // namespace impl
+bool fastcsum_cpu_has_sse41();
+uint64_t fastcsum_nofold_vec128(const uint8_t *ptr, size_t size, uint64_t initial);
 
 // returns folded, complemented checksum in native byte order
-[[gnu::always_inline]] static inline uint16_t fold_complement_checksum(uint64_t initial) {
+[[gnu::always_inline]] static inline uint16_t fold_complement_checksum64(uint64_t initial) {
     uint32_t ac32;
     bool c1 = __builtin_add_overflow(
         static_cast<uint32_t>(initial >> 32),

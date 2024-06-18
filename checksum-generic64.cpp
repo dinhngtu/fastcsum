@@ -1,8 +1,9 @@
 #include "fastcsum.hpp"
 #include "addc.hpp"
 
+using namespace fastcsum::impl;
+
 namespace fastcsum {
-namespace impl {
 
 uint64_t fastcsum_nofold_generic64(const uint8_t *b, size_t size, uint64_t initial) {
     uint64_t ac = initial;
@@ -50,5 +51,4 @@ uint64_t fastcsum_nofold_generic64(const uint8_t *b, size_t size, uint64_t initi
     return ac;
 }
 
-} // namespace impl
 } // namespace fastcsum

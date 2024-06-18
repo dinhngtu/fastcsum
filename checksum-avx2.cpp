@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <cstdint>
 #include <cstddef>
 #include <cstdlib>
@@ -6,16 +7,14 @@
 
 #include "fastcsum.hpp"
 #include "addc.hpp"
-#include "cpuid.hpp"
 
-#if _fastcsum_has_avx2
-#include <immintrin.h>
-#endif
+using namespace fastcsum::impl;
 
 namespace fastcsum {
-namespace impl {
 
-#if _fastcsum_has_avx2
+#if FASTCSUM_ENABLE_AVX2
+
+namespace impl {
 
 static inline void addc_epi32(__m256i &s, __m256i &c, __m256i a, __m256i b) {
     __m256i mask = _mm256_set1_epi32(0x80000000);
@@ -36,6 +35,8 @@ static inline uint64_t addc_fold_epi64(__m256i &v, uint64_t initial) {
     ac += c;
     return ac;
 }
+
+} // namespace impl
 
 uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
@@ -362,56 +363,20 @@ uint64_t fastcsum_nofold_avx2_v4(const uint8_t *b, size_t size, uint64_t initial
 
 #else
 
-uint64_t fastcsum_nofold_avx2(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
+#define fastcsum_no_avx2(f) \
+    uint64_t f([[maybe_unused]] const uint8_t *, [[maybe_unused]] size_t, [[maybe_unused]] uint64_t) { \
+        throw std::logic_error("fastcsum was not built with AVX2"); \
+    }
 
-uint64_t fastcsum_nofold_avx2_align(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
-
-uint64_t fastcsum_nofold_avx2_v2(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
-
-uint64_t fastcsum_nofold_avx2_256b(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
-
-uint64_t fastcsum_nofold_avx2_v3(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
-
-uint64_t fastcsum_nofold_avx2_v4(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
-
-uint64_t fastcsum_nofold_avx2_v5(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
+fastcsum_no_avx2(fastcsum_nofold_avx2);
+fastcsum_no_avx2(fastcsum_nofold_avx2_align);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v2);
+fastcsum_no_avx2(fastcsum_nofold_avx2_256b);
+extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v3);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v4);
+extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v5);
+extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v6);
 
 #endif
 
-} // namespace impl
 } // namespace fastcsum

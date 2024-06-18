@@ -6,7 +6,9 @@
                 "${workspaceFolder}",
                 "${workspaceFolder}/include"
             ],
-            "defines": [],
+            "defines": [
+                "FASTCSUM_ENABLE_AVX2=1"
+            ],
             "compilerPath": "/usr/bin/gcc",
             "intelliSenseMode": "linux-gcc-x64",
             "cppStandard": "c++14",

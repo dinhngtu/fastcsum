@@ -2,7 +2,8 @@
 
 #include "fastcsum.hpp"
 #include "addc.hpp"
-#include "cpuid.hpp"
+
+using namespace fastcsum::impl;
 
 namespace fastcsum {
 namespace impl {
@@ -46,6 +47,8 @@ typedef uint64_t u64x4 __attribute__((vector_size(32)));
 }
 
 #endif
+
+} // namespace impl
 
 uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
@@ -132,5 +135,4 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial)
     return ac;
 }
 
-} // namespace impl
 } // namespace fastcsum
