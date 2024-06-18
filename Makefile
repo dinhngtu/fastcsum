@@ -34,18 +34,18 @@ endif
 
 DEPS=$(OBJECTS:.o=.d)
 
-all: libfastcsum.a checksum-test
+all: libfastcsum.a test-fastcsum
 
 libfastcsum.a: $(OBJECTS)
 	$(AR) rcs $@ $?
 
-checksum-test: libfastcsum.a catch_amalgamated.o
+test-fastcsum: libfastcsum.a catch_amalgamated.o
 
-check: checksum-test
+check: test-fastcsum
 	./$< --skip-benchmarks
 
 clean:
-	$(RM) checksum-test *.o *.d *.a
+	$(RM) test-fastcsum *.o *.d *.a
 
 .PHONY: check clean
 
