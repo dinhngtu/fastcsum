@@ -4,7 +4,7 @@ namespace fastcsum {
 namespace impl {
 
 template <typename T>
-static inline T addc_fallback(T a, T b, T cin, T *cout) {
+[[gnu::always_inline]] static inline T addc_fallback(T a, T b, T cin, T *cout) {
     T s;
     bool c1 = __builtin_add_overflow(a, b, &s);
     bool c2 = __builtin_add_overflow(s, cin, &s);
@@ -34,7 +34,8 @@ static inline T addc_fallback(T a, T b, T cin, T *cout) {
 #endif
 #endif
 
-static inline unsigned int addc(unsigned int a, unsigned int b, unsigned int cin, unsigned int *cout) {
+[[gnu::always_inline]] static inline unsigned int
+addc(unsigned int a, unsigned int b, unsigned int cin, unsigned int *cout) {
 #ifdef _fastcsum_has_addc
     return __builtin_addc(a, b, cin, cout);
 #else
@@ -42,7 +43,7 @@ static inline unsigned int addc(unsigned int a, unsigned int b, unsigned int cin
 #endif
 }
 
-static inline unsigned long int
+[[gnu::always_inline]] static inline unsigned long int
 addc(unsigned long int a, unsigned long int b, unsigned long int cin, unsigned long int *cout) {
 #ifdef _fastcsum_has_addcl
     return __builtin_addcl(a, b, cin, cout);
@@ -51,13 +52,59 @@ addc(unsigned long int a, unsigned long int b, unsigned long int cin, unsigned l
 #endif
 }
 
-static inline unsigned long long int
+[[gnu::always_inline]] static inline unsigned long long int
 addc(unsigned long long int a, unsigned long long int b, unsigned long long int cin, unsigned long long int *cout) {
 #ifdef _fastcsum_has_addcll
     return __builtin_addcll(a, b, cin, cout);
 #else
     return addc_fallback(a, b, cin, cout);
 #endif
+}
+
+// arithmetically, c is carry minus 1 (all 1 if no overflow, all 0 if overflow)
+// therefore s+carry = s+c+1
+template <typename T>
+[[gnu::always_inline]] static inline void addc_minus1_vec(T &s, T &c, T a, T b) {
+    s = a + b;
+    c = s > a ? s : a;
+    c = s == c;
+}
+
+static inline uint64_t csum_31bytes(const uint8_t *b, size_t size, uint64_t initial) {
+    uint64_t ac = initial;
+    uint64_t carry;
+    if (size >= 16) {
+        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
+        // add an extra carry add here to help older gcc at the risk of adding an unnecessary adc
+        ac += carry;
+        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[8]), 0, &carry);
+        ac += carry;
+        b += 16;
+        size -= 16;
+    }
+    if (size >= 8) {
+        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
+        ac += carry;
+        b += 8;
+        size -= 8;
+    }
+    if (size >= 4) {
+        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint32_t *>(&b[0])), 0, &carry);
+        ac += carry;
+        b += 4;
+        size -= 4;
+    }
+    if (size >= 2) {
+        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint16_t *>(&b[0])), 0, &carry);
+        ac += carry;
+        b += 2;
+        size -= 2;
+    }
+    if (size) {
+        ac = addc(ac, static_cast<uint64_t>(b[0]), 0, &carry);
+        ac += carry;
+    }
+    return ac;
 }
 
 } // namespace impl

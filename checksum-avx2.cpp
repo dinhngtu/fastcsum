@@ -2,9 +2,15 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cpuid.h>
+#include <immintrin.h>
 
 #include "fastcsum.hpp"
-#include "vectorized.hpp"
+#include "addc.hpp"
+#include "cpuid.hpp"
+
+#if _fastcsum_has_avx2
+#include <immintrin.h>
+#endif
 
 namespace fastcsum {
 namespace impl {
@@ -16,14 +22,6 @@ static inline void addc_epi32(__m256i &s, __m256i &c, __m256i a, __m256i b) {
     s = _mm256_add_epi32(a, b);
     c = _mm256_cmpgt_epi32(_mm256_xor_si256(mask, a), _mm256_xor_si256(mask, s));
     c = _mm256_srli_epi32(c, 31);
-}
-
-// arithmetically, c is carry minus 1 (all 1 if no overflow, all 0 if overflow)
-// therefore s+carry = s+c+1
-static inline void addc_minus1_epu32(__m256i &s, __m256i &c, __m256i a, __m256i b) {
-    s = _mm256_add_epi32(a, b);
-    auto cc = _mm256_max_epu32(s, a);
-    c = _mm256_cmpeq_epi32(s, cc);
 }
 
 static inline uint64_t addc_fold_epi64(__m256i &v, uint64_t initial) {

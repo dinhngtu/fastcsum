@@ -32,7 +32,7 @@ extern "C" uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint
 } // namespace impl
 
 // returns folded, complemented checksum in native byte order
-static inline uint16_t fold_complement_checksum(uint64_t initial) {
+[[gnu::always_inline]] static inline uint16_t fold_complement_checksum(uint64_t initial) {
     uint32_t ac32;
     bool c1 = __builtin_add_overflow(
         static_cast<uint32_t>(initial >> 32),

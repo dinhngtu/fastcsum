@@ -1,23 +1,28 @@
 #include <cstdlib>
 
 #include "fastcsum.hpp"
-#include "vectorized.hpp"
+#include "addc.hpp"
+#include "cpuid.hpp"
 
 namespace fastcsum {
 namespace impl {
 
-#if _fastcsum_has_avx2
+// use typedefs here since for some reason clang insists on aligned loads with using definitions
+typedef uint32_t u32x8 __attribute__((vector_size(32)));
+typedef uint32_t u32x8u __attribute__((vector_size(32), aligned(1), may_alias));
+typedef uint64_t u64x4 __attribute__((vector_size(32)));
 
-static inline void addc_minus1_vec8(__v8su &s, __v8su &c, __v8su a, __v8su b) {
-    s = a + b;
-    c = (__v8su)_mm256_max_epu32((__m256i)s, (__m256i)a);
-    c = s == c;
-}
+#ifdef __x86_64__
 
-static inline uint64_t addc_fold_vec8(__v8su &v, uint64_t initial) {
+#include <immintrin.h>
+
+// compilers don't always know how to generate adc instructions here
+// sprinkle in some intrinsics to help them along
+
+[[gnu::always_inline]] static inline uint64_t addc_fold_vec8(u32x8 &v, uint64_t initial) {
     unsigned long long ac = initial;
     unsigned char c;
-    __v4du d = (__v4du)v;
+    u64x4 d = (u64x4)v;
     c = _addcarry_u64(0, ac, static_cast<uint64_t>(d[0]), &ac);
     c = _addcarry_u64(c, ac, static_cast<uint64_t>(d[1]), &ac);
     c = _addcarry_u64(c, ac, static_cast<uint64_t>(d[2]), &ac);
@@ -26,36 +31,52 @@ static inline uint64_t addc_fold_vec8(__v8su &v, uint64_t initial) {
     return ac;
 }
 
+#else
+
+[[gnu::always_inline]] static inline uint64_t addc_fold_vec8(u32x8 &v, uint64_t initial) {
+    uint64_t ac = initial;
+    uint64_t c;
+    u64x4 d = (u64x4)v;
+    ac = addc(ac, static_cast<uint64_t>(d[0]), 0, &c);
+    ac = addc(ac, static_cast<uint64_t>(d[1]), c, &c);
+    ac = addc(ac, static_cast<uint64_t>(d[2]), c, &c);
+    ac = addc(ac, static_cast<uint64_t>(d[3]), c, &c);
+    ac += c;
+    return ac;
+}
+
+#endif
+
 uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
-    __v8su vac{};
+    u32x8 vac{};
 
     while (size >= 256) {
-        __v8su v1, c1;
-        v1 = (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b));
-        addc_minus1_vec8(v1, c1, v1, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 32)));
+        u32x8 v1, c1;
+        v1 = (u32x8) * (u32x8u *)(b);
+        addc_minus1_vec(v1, c1, v1, (u32x8) * (u32x8u *)(b + 32));
 
-        __v8su v2, c2;
-        v2 = (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 64));
-        addc_minus1_vec8(v2, c2, v2, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 96)));
+        u32x8 v2, c2;
+        v2 = (u32x8) * (u32x8u *)(b + 64);
+        addc_minus1_vec(v2, c2, v2, (u32x8) * (u32x8u *)(b + 96));
 
-        __v8su v3, c3;
-        v3 = (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 128));
-        addc_minus1_vec8(v3, c3, v3, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 160)));
+        u32x8 v3, c3;
+        v3 = (u32x8) * (u32x8u *)(b + 128);
+        addc_minus1_vec(v3, c3, v3, (u32x8) * (u32x8u *)(b + 160));
 
-        __v8su v4, c4;
-        v4 = (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 192));
-        addc_minus1_vec8(v4, c4, v4, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 224)));
+        u32x8 v4, c4;
+        v4 = (u32x8) * (u32x8u *)(b + 192);
+        addc_minus1_vec(v4, c4, v4, (u32x8) * (u32x8u *)(b + 224));
 
-        __v8su v5, c5;
-        addc_minus1_vec8(v5, c5, v1, v2);
-        __v8su v6, c6;
-        addc_minus1_vec8(v6, c6, v3, v4);
+        u32x8 v5, c5;
+        addc_minus1_vec(v5, c5, v1, v2);
+        u32x8 v6, c6;
+        addc_minus1_vec(v6, c6, v3, v4);
 
-        __v8su v7, c7;
-        addc_minus1_vec8(v7, c7, v5, v6);
-        __v8su c;
-        addc_minus1_vec8(vac, c, vac, v7);
+        u32x8 v7, c7;
+        addc_minus1_vec(v7, c7, v5, v6);
+        u32x8 c;
+        addc_minus1_vec(vac, c, vac, v7);
         vac += c + c1 + c2 + c3 + c4 + c5 + c6 + c7;
         vac += 8;
 
@@ -63,19 +84,19 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial)
         size -= 256;
     }
     if (size >= 128) {
-        __v8su v1, c1;
-        v1 = (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b));
-        addc_minus1_vec8(v1, c1, v1, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 32)));
+        u32x8 v1, c1;
+        v1 = (u32x8) * (u32x8u *)(b);
+        addc_minus1_vec(v1, c1, v1, (u32x8) * (u32x8u *)(b + 32));
 
-        __v8su v2, c2;
-        v2 = (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 64));
-        addc_minus1_vec8(v2, c2, v2, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 96)));
+        u32x8 v2, c2;
+        v2 = (u32x8) * (u32x8u *)(b + 64);
+        addc_minus1_vec(v2, c2, v2, (u32x8) * (u32x8u *)(b + 96));
 
-        __v8su v5, c5;
-        addc_minus1_vec8(v5, c5, v1, v2);
+        u32x8 v5, c5;
+        addc_minus1_vec(v5, c5, v1, v2);
 
-        __v8su c;
-        addc_minus1_vec8(vac, c, vac, v5);
+        u32x8 c;
+        addc_minus1_vec(vac, c, vac, v5);
         vac += c + c1 + c2 + c5;
         vac += 4;
 
@@ -83,12 +104,12 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial)
         size -= 128;
     }
     if (size >= 64) {
-        __v8su v1, c1;
-        v1 = (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b));
-        addc_minus1_vec8(v1, c1, v1, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b + 32)));
+        u32x8 v1, c1;
+        v1 = (u32x8) * (u32x8u *)(b);
+        addc_minus1_vec(v1, c1, v1, (u32x8) * (u32x8u *)(b + 32));
 
-        __v8su c;
-        addc_minus1_vec8(vac, c, vac, v1);
+        u32x8 c;
+        addc_minus1_vec(vac, c, vac, v1);
         vac += c + c1;
         vac += 2;
 
@@ -96,8 +117,8 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial)
         size -= 64;
     }
     if (size >= 32) {
-        __v8su c;
-        addc_minus1_vec8(vac, c, vac, (__v8su)_mm256_loadu_si256(reinterpret_cast<const __m256i_u *>(b)));
+        u32x8 c;
+        addc_minus1_vec(vac, c, vac, (u32x8) * (u32x8u *)(b));
         vac += c;
         vac += 1;
 
@@ -110,17 +131,6 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial)
 
     return ac;
 }
-
-#else
-
-uint64_t fastcsum_nofold_vec256(
-    [[maybe_unused]] const uint8_t *b,
-    [[maybe_unused]] size_t size,
-    [[maybe_unused]] uint64_t initial) {
-    abort();
-}
-
-#endif
 
 } // namespace impl
 } // namespace fastcsum
