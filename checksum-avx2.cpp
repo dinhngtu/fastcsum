@@ -23,6 +23,12 @@ static inline void addc_epi32(__m256i &s, __m256i &c, __m256i a, __m256i b) {
     c = _mm256_srli_epi32(c, 31);
 }
 
+[[gnu::always_inline]] static inline void addc_minus1_epi32(__m256i &s, __m256i &c, __m256i a, __m256i b) {
+    s = _mm256_add_epi32(a, b);
+    c = _mm256_max_epu32(s, a);
+    c = _mm256_cmpeq_epi32(s, c);
+}
+
 static inline uint64_t addc_fold_epi64(__m256i &v, uint64_t initial) {
     unsigned long long ac = initial;
     uint64_t out[4];

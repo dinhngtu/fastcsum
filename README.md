@@ -4,13 +4,12 @@ Fast Internet checksum calculation on x86-64 with Intel ADX
 Up to 6x faster than unrolled C++ with the use of ADCX/ADOX instructions.
 
 I recommend **adx-v2** for ADX-capable CPUs and **x64-64b** for most other
-x86-64 CPUs.
+x86-64 CPUs. If processing big packets (>1500 bytes), try **vec256** or
+**vec128** depending on CPU support.
 
 The generic version emits add-with-carry instructions whenever possible
 on clang 10+ and gcc 14+.
 Requires a compiler with support for `__builtin_add_overflow`.
-
-CPU feature detection is left as an exercise to the reader.
 
 Original reference:
 https://blogs.igalia.com/dpino/2018/06/14/fast-checksum-computation

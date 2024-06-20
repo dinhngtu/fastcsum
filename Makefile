@@ -60,9 +60,11 @@ OBJECTS+=\
 	checksum-avx2-v6.o \
 
 else ifeq ($(ENABLE_AVX), 1)
+CPPFLAGS+=-DFASTCSUM_ENABLE_AVX=1
 $(OBJECTS_AVX): CXXFLAGS+=-mavx
 
 else ifeq ($(ENABLE_SSE41), 1)
+CPPFLAGS+=-DFASTCSUM_ENABLE_SSE41=1
 $(OBJECTS_SSE41): CXXFLAGS+=-msse4.1
 
 endif

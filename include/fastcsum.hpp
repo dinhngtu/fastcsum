@@ -3,6 +3,11 @@
 #include <cstdint>
 #include <cstddef>
 
+#define fastcsum_feature_helper(feat) \
+    static inline bool fastcsum_##feat##_usable() { \
+        return fastcsum_built_with_##feat() && fastcsum_cpu_has_##feat(); \
+    }
+
 namespace fastcsum {
 
 uint64_t fastcsum_nofold_generic64(const uint8_t *b, size_t size, uint64_t initial);
@@ -22,15 +27,21 @@ extern "C" uint64_t fastcsum_nofold_adx_align2(const uint8_t *ptr, size_t size, 
 
 bool fastcsum_built_with_avx2();
 bool fastcsum_cpu_has_avx2();
-static inline bool fastcsum_avx2_usable() {
-    return fastcsum_built_with_avx2() && fastcsum_cpu_has_avx2();
-}
+fastcsum_feature_helper(avx2);
 
+bool fastcsum_built_with_avx();
 bool fastcsum_cpu_has_avx();
+fastcsum_feature_helper(avx);
+
+bool fastcsum_built_with_sse41();
+bool fastcsum_cpu_has_sse41();
+fastcsum_feature_helper(sse41);
+
 uint64_t fastcsum_nofold_avx2(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_avx2_align(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_avx2_v2(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_avx2_256b(const uint8_t *ptr, size_t size, uint64_t initial);
+// `avx2_v3` is a plain assembly version converted from `avx2_256b` compiled with Clang.
 extern "C" uint64_t fastcsum_nofold_avx2_v3(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_avx2_v4(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uint64_t initial);
@@ -38,7 +49,6 @@ extern "C" uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uin
 
 uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initial);
 
-bool fastcsum_cpu_has_sse41();
 uint64_t fastcsum_nofold_vec128(const uint8_t *ptr, size_t size, uint64_t initial);
 
 // returns folded, complemented checksum in native byte order
