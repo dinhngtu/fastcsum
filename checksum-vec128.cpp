@@ -21,7 +21,7 @@ typedef uint64_t u64x2 __attribute__((vector_size(16)));
 // compilers don't always know how to generate adc instructions here
 // sprinkle in some intrinsics to help them along
 
-[[gnu::always_inline]] static inline uint64_t addc_fold_vec8(u32x4 &v, uint64_t initial) {
+[[gnu::always_inline]] static inline uint64_t addc_fold_vec4(u32x4 &v, uint64_t initial) {
     unsigned long long ac = initial;
     unsigned char c;
     u64x2 d = (u64x2)v;
@@ -115,15 +115,6 @@ uint64_t fastcsum_nofold_vec128(const uint8_t *b, size_t size, uint64_t initial)
 
         b += 32;
         size -= 32;
-    }
-    if (size >= 16) {
-        u32x4 c;
-        addc_minus1_vec(vac, c, vac, (u32x4) * (u32x4u *)(b));
-        vac += c;
-        vac += 1;
-
-        b += 16;
-        size -= 16;
     }
 
     ac = addc_fold_vec8(vac, ac);
