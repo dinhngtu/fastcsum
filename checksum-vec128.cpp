@@ -33,7 +33,7 @@ typedef uint64_t u64x2 __attribute__((vector_size(16)));
 
 #else
 
-[[gnu::always_inline]] static inline uint64_t addc_fold_vec8(u32x4 &v, uint64_t initial) {
+[[gnu::always_inline]] static inline uint64_t addc_fold_vec4(u32x4 &v, uint64_t initial) {
     uint64_t ac = initial;
     uint64_t c;
     u64x2 d = (u64x2)v;
@@ -117,7 +117,7 @@ uint64_t fastcsum_nofold_vec128(const uint8_t *b, size_t size, uint64_t initial)
         size -= 32;
     }
 
-    ac = addc_fold_vec8(vac, ac);
+    ac = addc_fold_vec4(vac, ac);
     ac = csum_31bytes(b, size, ac);
 
     return ac;
