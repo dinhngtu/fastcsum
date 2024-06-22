@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstring>
+
 namespace fastcsum {
 namespace impl {
 
@@ -74,28 +76,37 @@ static inline uint64_t csum_31bytes(const uint8_t *b, size_t size, uint64_t init
     uint64_t ac = initial;
     uint64_t carry;
     if (size >= 16) {
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
+        uint64_t tmp;
+        memcpy(&tmp, &b[0], sizeof(tmp));
+        ac = addc(ac, tmp, 0, &carry);
         // add an extra carry add here to help older gcc at the risk of adding an unnecessary adc
         ac += carry;
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[8]), 0, &carry);
+        memcpy(&tmp, &b[8], sizeof(tmp));
+        ac = addc(ac, tmp, 0, &carry);
         ac += carry;
         b += 16;
         size -= 16;
     }
     if (size >= 8) {
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
+        uint64_t tmp;
+        memcpy(&tmp, &b[0], sizeof(tmp));
+        ac = addc(ac, tmp, 0, &carry);
         ac += carry;
         b += 8;
         size -= 8;
     }
     if (size >= 4) {
-        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint32_t *>(&b[0])), 0, &carry);
+        uint32_t tmp;
+        memcpy(&tmp, &b[0], sizeof(tmp));
+        ac = addc(ac, static_cast<uint64_t>(tmp), 0, &carry);
         ac += carry;
         b += 4;
         size -= 4;
     }
     if (size >= 2) {
-        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint16_t *>(&b[0])), 0, &carry);
+        uint16_t tmp;
+        memcpy(&tmp, &b[0], sizeof(tmp));
+        ac = addc(ac, static_cast<uint64_t>(tmp), 0, &carry);
         ac += carry;
         b += 2;
         size -= 2;
