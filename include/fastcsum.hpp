@@ -51,7 +51,11 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initia
 
 uint64_t fastcsum_nofold_vec128(const uint8_t *ptr, size_t size, uint64_t initial);
 
-// returns folded, complemented checksum in native byte order
+/*
+ * Returns folded, complemented checksum in native byte order.
+ * Note that initial, partial and final checksum values must all be loaded and stored in **native** order.
+ * See explanation below.
+ */
 [[gnu::always_inline]] static inline uint16_t fold_complement_checksum64(uint64_t initial) {
     uint32_t ac32;
     bool c1 = __builtin_add_overflow(
@@ -66,5 +70,15 @@ uint64_t fastcsum_nofold_vec128(const uint8_t *ptr, size_t size, uint64_t initia
 
     return ~ac16;
 }
+
+/*
+ * The reason why checksums must be loaded/stored in native order is that fastcsum_nofold calculates the 1's complement sum
+ * using native byte order.
+ * With this ordering, the resulting checksum has a flipped arithmetic ``order'', but the resulting byte representations are the same.
+ * For example, consider the 4-byte input: 00 12 34 00
+ * BE checksum = 0x0012 + 0x3400 = 0x3412
+ * LE checksum = 0x1200 + 0x0034 = 0x1234
+ * However, byte_repr_BE(0x3412) == 34 12 == byte_repr_LE(0x1234).
+ */
 
 } // namespace fastcsum
