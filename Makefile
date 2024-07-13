@@ -4,8 +4,8 @@ CXXFLAGS+=-Wall -Wextra -Wformat=2 -Werror=shadow -Werror=return-type -std=c++14
 ENABLE_AVX2?=0
 ENABLE_AVX?=0
 ENABLE_SSE41?=0
-MARCH=
-MTUNE=
+ARCH=
+TUNE=
 
 ifeq ($(DEBUG), 1)
 	CPPFLAGS+=-DDEBUG=1
@@ -17,13 +17,13 @@ else
 	CXXFLAGS+=-O2 -g3
 endif
 
-ifneq ($(strip $(MARCH)),)
-	CFLAGS+=-march=$(MARCH)
-	CXXFLAGS+=-march=$(MARCH)
+ifneq ($(strip $(ARCH)),)
+	CFLAGS+=-march=$(ARCH)
+	CXXFLAGS+=-march=$(ARCH)
 endif
-ifneq ($(strip $(MTUNE)),)
-	CFLAGS+=-mtune=$(MTUNE)
-	CXXFLAGS+=-mtune=$(MTUNE)
+ifneq ($(strip $(TUNE)),)
+	CFLAGS+=-mtune=$(TUNE)
+	CXXFLAGS+=-mtune=$(TUNE)
 endif
 
 OBJECTS=\
