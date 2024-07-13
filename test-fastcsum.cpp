@@ -103,7 +103,7 @@ TEST_CASE("checksum-rfc1071") {
 }
 
 TEST_CASE("bench") {
-    auto size = GENERATE(40, 128, 576, 1500);
+    auto size = GENERATE(40, 128, 576, 1500, 2048, 4096, 8192, 16384, 32768, 65535);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
         return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
@@ -142,7 +142,7 @@ TEST_CASE("bench") {
 }
 
 TEST_CASE("bench-large") {
-    auto size = GENERATE(1500, 2048, 4096);
+    auto size = GENERATE(1500, 2048, 4096, 8192, 16384, 32768, 65535);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
         return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
