@@ -1,5 +1,11 @@
 #pragma once
 
+#include <climits>
+
+#if defined(__i386__) || defined(__x86_64__)
+#include <x86intrin.h>
+#endif
+
 namespace fastcsum {
 namespace impl {
 
@@ -34,28 +40,58 @@ template <typename T>
 #endif
 #endif
 
+#ifdef _fastcsum_has_addcarry_u32
+#undef _fastcsum_has_addcarry_u32
+#endif
+#ifdef _fastcsum_has_addcarry_u64
+#undef _fastcsum_has_addcarry_u64
+#endif
+
+#ifdef __i386__
+#define _fastcsum_has_addcarry_u32 1
+#endif
+#ifdef __x86_64__
+#define _fastcsum_has_addcarry_u64 1
+#endif
+
 [[gnu::always_inline]] static inline unsigned int
 addc(unsigned int a, unsigned int b, unsigned int cin, unsigned int *cout) {
 #ifdef _fastcsum_has_addc
     return __builtin_addc(a, b, cin, cout);
+#elif defined(_fastcsum_has_addcarry_u32)
+    unsigned int s;
+    *cout = _addcarry_u32(cin, a, b, &s);
+    return s;
 #else
     return addc_fallback(a, b, cin, cout);
 #endif
 }
 
-[[gnu::always_inline]] static inline unsigned long int
-addc(unsigned long int a, unsigned long int b, unsigned long int cin, unsigned long int *cout) {
+[[gnu::always_inline]] static inline unsigned long
+addc(unsigned long a, unsigned long b, unsigned long cin, unsigned long *cout) {
 #ifdef _fastcsum_has_addcl
     return __builtin_addcl(a, b, cin, cout);
+#elif defined(_fastcsum_has_addcarry_u32) && LONG_WIDTH == 32
+    unsigned int s;
+    *cout = _addcarry_u32(cin, a, b, &s);
+    return s;
+#elif defined(_fastcsum_has_addcarry_u64) && LONG_WIDTH == 64
+    unsigned long long s;
+    *cout = _addcarry_u64(cin, a, b, &s);
+    return s;
 #else
     return addc_fallback(a, b, cin, cout);
 #endif
 }
 
-[[gnu::always_inline]] static inline unsigned long long int
-addc(unsigned long long int a, unsigned long long int b, unsigned long long int cin, unsigned long long int *cout) {
+[[gnu::always_inline]] static inline unsigned long long
+addc(unsigned long long a, unsigned long long b, unsigned long long cin, unsigned long long *cout) {
 #ifdef _fastcsum_has_addcll
     return __builtin_addcll(a, b, cin, cout);
+#elif defined(_fastcsum_has_addcarry_u64)
+    unsigned long long s;
+    *cout = _addcarry_u64(cin, a, b, &s);
+    return s;
 #else
     return addc_fallback(a, b, cin, cout);
 #endif

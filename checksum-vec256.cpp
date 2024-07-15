@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include "fastcsum.hpp"
 #include "addc.hpp"
 
@@ -8,31 +6,9 @@ using namespace fastcsum::impl;
 namespace fastcsum {
 namespace impl {
 
-// use typedefs here since for some reason clang insists on aligned loads with using definitions
-typedef uint32_t u32x8 __attribute__((vector_size(32)));
-typedef uint32_t u32x8u __attribute__((vector_size(32), aligned(1), may_alias));
-typedef uint64_t u64x4 __attribute__((vector_size(32)));
-
-#ifdef __x86_64__
-
-#include <immintrin.h>
-
-// compilers don't always know how to generate adc instructions here
-// sprinkle in some intrinsics to help them along
-
-[[gnu::always_inline]] static inline uint64_t addc_fold_vec8(u32x8 &v, uint64_t initial) {
-    unsigned long long ac = initial;
-    unsigned char c;
-    u64x4 d = (u64x4)v;
-    c = _addcarry_u64(0, ac, static_cast<uint64_t>(d[0]), &ac);
-    c = _addcarry_u64(c, ac, static_cast<uint64_t>(d[1]), &ac);
-    c = _addcarry_u64(c, ac, static_cast<uint64_t>(d[2]), &ac);
-    c = _addcarry_u64(c, ac, static_cast<uint64_t>(d[3]), &ac);
-    ac += c;
-    return ac;
-}
-
-#else
+using u32x8 [[gnu::vector_size(32)]] = uint32_t;
+using u32x8u [[gnu::vector_size(32), gnu::aligned(1), gnu::may_alias]] = uint32_t;
+using u64x4 [[gnu::vector_size(32)]] = uint64_t;
 
 [[gnu::always_inline]] static inline uint64_t addc_fold_vec8(u32x8 &v, uint64_t initial) {
     uint64_t ac = initial;
@@ -45,8 +21,6 @@ typedef uint64_t u64x4 __attribute__((vector_size(32)));
     ac += c;
     return ac;
 }
-
-#endif
 
 } // namespace impl
 
