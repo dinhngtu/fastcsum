@@ -71,11 +71,11 @@ addc(unsigned int a, unsigned int b, unsigned int cin, unsigned int *cout) {
 addc(unsigned long a, unsigned long b, unsigned long cin, unsigned long *cout) {
 #ifdef _fastcsum_has_addcl
     return __builtin_addcl(a, b, cin, cout);
-#elif defined(_fastcsum_has_addcarry_u32) && LONG_WIDTH == 32
+#elif defined(_fastcsum_has_addcarry_u32) && __SIZEOF_LONG__ == __SIZEOF_INT__
     unsigned int s;
     *cout = _addcarry_u32(cin, a, b, &s);
     return s;
-#elif defined(_fastcsum_has_addcarry_u64) && LONG_WIDTH == 64
+#elif defined(_fastcsum_has_addcarry_u64) && __SIZEOF_LONG__ == __SIZEOF_LONG_LONG__
     unsigned long long s;
     *cout = _addcarry_u64(cin, a, b, &s);
     return s;
