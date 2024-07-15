@@ -47,10 +47,10 @@ template <typename T>
 #undef _fastcsum_has_addcarry_u64
 #endif
 
-#ifdef __i386__
+#if defined(__i386__) || defined(__x86_64__)
 #define _fastcsum_has_addcarry_u32 1
 #endif
-#ifdef __x86_64__
+#if defined(__x86_64__)
 #define _fastcsum_has_addcarry_u64 1
 #endif
 
