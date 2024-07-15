@@ -2,3 +2,4 @@
 *.d
 *.a
 test-fastcsum
+fastcsum-version

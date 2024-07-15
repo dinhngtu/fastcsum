@@ -71,12 +71,14 @@ endif
 
 DEPS=$(OBJECTS:.o=.d)
 
-all: libfastcsum.a test-fastcsum
+all: libfastcsum.a test-fastcsum fastcsum-version
 
 libfastcsum.a: $(OBJECTS)
 	$(AR) rcs $@ $^
 
 test-fastcsum: libfastcsum.a catch_amalgamated.o
+
+fastcsum-version: libfastcsum.a
 
 check: test-fastcsum
 	./$< --skip-benchmarks
