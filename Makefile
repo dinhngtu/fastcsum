@@ -1,5 +1,5 @@
 CPPFLAGS+=-MMD -MP -Iinclude
-CXXFLAGS+=-Wall -Wextra -Wformat=2 -Werror=shadow -Werror=return-type -std=c++14 -fwrapv
+CXXFLAGS+=-Wall -Wextra -Wformat=2 -Werror=shadow -Werror=return-type -std=c++14 -fwrapv -fno-strict-aliasing
 
 ENABLE_AVX2?=0
 ENABLE_AVX?=0
