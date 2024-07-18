@@ -114,7 +114,7 @@ uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t in
     u32x8 vac{};
 
     bool flip = false;
-    if (size > 64) {
+    if (size > 32) {
         auto align = reinterpret_cast<uintptr_t>(b) & 31;
         if (align) {
             auto toadvance = 32 - align;
@@ -129,20 +129,20 @@ uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t in
 
     while (size >= 256) {
         u32x8 v1, c1;
-        v1 = (u32x8) * (u32x8u *)(b);
-        addc_minus1_vec(v1, c1, v1, (u32x8) * (u32x8u *)(b + 32));
+        v1 = *(u32x8 *)(b);
+        addc_minus1_vec(v1, c1, v1, *(u32x8 *)(b + 32));
 
         u32x8 v2, c2;
-        v2 = (u32x8) * (u32x8u *)(b + 64);
-        addc_minus1_vec(v2, c2, v2, (u32x8) * (u32x8u *)(b + 96));
+        v2 = *(u32x8 *)(b + 64);
+        addc_minus1_vec(v2, c2, v2, *(u32x8 *)(b + 96));
 
         u32x8 v3, c3;
-        v3 = (u32x8) * (u32x8u *)(b + 128);
-        addc_minus1_vec(v3, c3, v3, (u32x8) * (u32x8u *)(b + 160));
+        v3 = *(u32x8 *)(b + 128);
+        addc_minus1_vec(v3, c3, v3, *(u32x8 *)(b + 160));
 
         u32x8 v4, c4;
-        v4 = (u32x8) * (u32x8u *)(b + 192);
-        addc_minus1_vec(v4, c4, v4, (u32x8) * (u32x8u *)(b + 224));
+        v4 = *(u32x8 *)(b + 192);
+        addc_minus1_vec(v4, c4, v4, *(u32x8 *)(b + 224));
 
         u32x8 v5, c5;
         addc_minus1_vec(v5, c5, v1, v2);
@@ -161,12 +161,12 @@ uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t in
     }
     if (size >= 128) {
         u32x8 v1, c1;
-        v1 = (u32x8) * (u32x8u *)(b);
-        addc_minus1_vec(v1, c1, v1, (u32x8) * (u32x8u *)(b + 32));
+        v1 = *(u32x8 *)(b);
+        addc_minus1_vec(v1, c1, v1, *(u32x8 *)(b + 32));
 
         u32x8 v2, c2;
-        v2 = (u32x8) * (u32x8u *)(b + 64);
-        addc_minus1_vec(v2, c2, v2, (u32x8) * (u32x8u *)(b + 96));
+        v2 = *(u32x8 *)(b + 64);
+        addc_minus1_vec(v2, c2, v2, *(u32x8 *)(b + 96));
 
         u32x8 v5, c5;
         addc_minus1_vec(v5, c5, v1, v2);
@@ -181,8 +181,8 @@ uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t in
     }
     if (size >= 64) {
         u32x8 v1, c1;
-        v1 = (u32x8) * (u32x8u *)(b);
-        addc_minus1_vec(v1, c1, v1, (u32x8) * (u32x8u *)(b + 32));
+        v1 = *(u32x8 *)(b);
+        addc_minus1_vec(v1, c1, v1, *(u32x8 *)(b + 32));
 
         u32x8 c;
         addc_minus1_vec(vac, c, vac, v1);
@@ -194,7 +194,7 @@ uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t in
     }
     if (size >= 32) {
         u32x8 c;
-        addc_minus1_vec(vac, c, vac, (u32x8) * (u32x8u *)(b));
+        addc_minus1_vec(vac, c, vac, *(u32x8 *)(b));
         vac += c;
         vac += 1;
 
