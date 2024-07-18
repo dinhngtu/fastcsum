@@ -1,4 +1,6 @@
 #include <cstdint>
+#include <cstdlib>
+#include <cstdio>
 #include <climits>
 #include <vector>
 #include <random>
@@ -32,11 +34,26 @@ static uint16_t checksum_ref(const uint8_t *buffer, int size) {
     return (uint16_t)(~cksum);
 }
 
+static void fill_random(uint8_t *data, size_t size) {
+    std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint8_t> rnd(Catch::getSeed());
+    for (size_t i = 0; i < size; i++)
+        data[i] = rnd();
+}
+
 static std::vector<uint8_t> create_packet(size_t size) {
     std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint8_t> rnd(Catch::getSeed());
     std::vector<uint8_t> vec(size);
-    for (auto &b : vec)
-        b = rnd();
+    fill_random(vec.data(), vec.size());
+    return vec;
+}
+
+static std::unique_ptr<uint8_t[]> create_packet(size_t align, size_t size) {
+    std::independent_bits_engine<std::default_random_engine, CHAR_BIT, uint8_t> rnd(Catch::getSeed());
+    auto mem = static_cast<uint8_t *>(aligned_alloc(align, size));
+    if (!mem)
+        throw std::bad_alloc();
+    std::unique_ptr<uint8_t[]> vec(mem);
+    fill_random(vec.get(), size);
     return vec;
 }
 
@@ -67,7 +84,9 @@ void test_all(uint16_t ref, const uint8_t *buffer, size_t size, uint64_t initial
         TEST_CSUM(ref, fastcsum_nofold_avx2_v6, buffer, size, initial);
     }
     TEST_CSUM(ref, fastcsum_nofold_vec256, buffer, size, initial);
+    TEST_CSUM(ref, fastcsum_nofold_vec256_align, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_vec128, buffer, size, initial);
+    TEST_CSUM(ref, fastcsum_nofold_vec128_align, buffer, size, initial);
 }
 
 TEST_CASE("checksum") {
@@ -136,8 +155,14 @@ TEST_CASE("bench") {
     BENCHMARK("vec256") {
         return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
     };
+    BENCHMARK("vec256_align") {
+        return fold_complement_checksum64(fastcsum_nofold_vec256_align(pkt.data(), pkt.size(), 0));
+    };
     BENCHMARK("vec128") {
         return fold_complement_checksum64(fastcsum_nofold_vec128(pkt.data(), pkt.size(), 0));
+    };
+    BENCHMARK("vec128_align") {
+        return fold_complement_checksum64(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
     };
 }
 
@@ -169,7 +194,46 @@ TEST_CASE("bench-large") {
     BENCHMARK("vec256") {
         return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
     };
+    BENCHMARK("vec256_align") {
+        return fold_complement_checksum64(fastcsum_nofold_vec256_align(pkt.data(), pkt.size(), 0));
+    };
     BENCHMARK("vec128") {
         return fold_complement_checksum64(fastcsum_nofold_vec128(pkt.data(), pkt.size(), 0));
+    };
+    BENCHMARK("vec128_align") {
+        return fold_complement_checksum64(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
+    };
+}
+
+TEST_CASE("bench-unaligned") {
+    auto size = GENERATE(1500, 8192, 65535);
+    auto align = GENERATE(16, 32);
+    auto off = GENERATE(1, 8, 31);
+    printf("size=%d, align=%d, off=%d\n", size, align, off);
+    auto pkt = create_packet(align, size);
+    BENCHMARK("x64_128b") {
+        return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.get() + off, size - off, 0));
+    };
+    if (fastcsum_adx_usable()) {
+        BENCHMARK("adx_v2") {
+            return fold_complement_checksum64(fastcsum_nofold_adx_v2(pkt.get() + off, size - off, 0));
+        };
+    }
+    if (fastcsum_avx2_usable()) {
+        BENCHMARK("avx2_v6") {
+            return fold_complement_checksum64(fastcsum_nofold_avx2_v6(pkt.get() + off, size - off, 0));
+        };
+    }
+    BENCHMARK("vec256") {
+        return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.get() + off, size - off, 0));
+    };
+    BENCHMARK("vec256_align") {
+        return fold_complement_checksum64(fastcsum_nofold_vec256_align(pkt.get() + off, size - off, 0));
+    };
+    BENCHMARK("vec128") {
+        return fold_complement_checksum64(fastcsum_nofold_vec128(pkt.get() + off, size - off, 0));
+    };
+    BENCHMARK("vec128_align") {
+        return fold_complement_checksum64(fastcsum_nofold_vec128_align(pkt.get() + off, size - off, 0));
     };
 }

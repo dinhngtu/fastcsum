@@ -2,7 +2,7 @@ Fast Internet checksum calculation on x86-64 with ADX and/or SIMD
 =================================================================
 
 I recommend **adx-v2** for ADX-capable CPUs and **x64-64b** for most other
-x86-64 CPUs. If processing big packets (>1500 bytes), try **vec256** or
+x86-64 CPUs. If processing big packets (>1500 bytes), try **vec256_align** or
 **vec128** depending on CPU support.
 
 The generic version emits add-with-carry instructions whenever possible

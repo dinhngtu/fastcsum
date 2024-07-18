@@ -48,8 +48,10 @@ extern "C" uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uin
 extern "C" uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uint64_t initial);
 
 uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initial);
+uint64_t fastcsum_nofold_vec256_align(const uint8_t *ptr, size_t size, uint64_t initial);
 
 uint64_t fastcsum_nofold_vec128(const uint8_t *ptr, size_t size, uint64_t initial);
+uint64_t fastcsum_nofold_vec128_align(const uint8_t *ptr, size_t size, uint64_t initial);
 
 /*
  * Returns folded, complemented checksum in native byte order.
@@ -72,13 +74,11 @@ uint64_t fastcsum_nofold_vec128(const uint8_t *ptr, size_t size, uint64_t initia
 }
 
 /*
- * The reason why checksums must be loaded/stored in native order is that fastcsum_nofold calculates the 1's complement sum
- * using native byte order.
- * With this ordering, the resulting checksum has a flipped arithmetic ``order'', but the resulting byte representations are the same.
- * For example, consider the 4-byte input: 00 12 34 00
- * BE checksum = 0x0012 + 0x3400 = 0x3412
- * LE checksum = 0x1200 + 0x0034 = 0x1234
- * However, byte_repr_BE(0x3412) == 34 12 == byte_repr_LE(0x1234).
+ * The reason why checksums must be loaded/stored in native order is that fastcsum_nofold calculates the 1's complement
+ * sum using native byte order. With this ordering, the resulting checksum has a flipped arithmetic ``order'', but the
+ * resulting byte representations are the same. For example, consider the 4-byte input: 00 12 34 00 BE checksum = 0x0012
+ * + 0x3400 = 0x3412 LE checksum = 0x1200 + 0x0034 = 0x1234 However, byte_repr_BE(0x3412) == 34 12 ==
+ * byte_repr_LE(0x1234).
  */
 
 } // namespace fastcsum
