@@ -26,6 +26,11 @@ ifneq ($(strip $(TUNE)),)
 	CXXFLAGS+=-mtune=$(TUNE)
 endif
 
+TARGETS=\
+	libfastcsum.a \
+	test-fastcsum \
+	fastcsum-version \
+
 OBJECTS=\
 	checksum-generic64.o \
 	checksum-x64-128b.o \
@@ -71,7 +76,7 @@ endif
 
 DEPS=$(OBJECTS:.o=.d)
 
-all: libfastcsum.a test-fastcsum fastcsum-version
+all: $(TARGETS)
 
 libfastcsum.a: $(OBJECTS)
 	$(AR) rcs $@ $^
@@ -84,7 +89,7 @@ check: test-fastcsum
 	./$< --skip-benchmarks
 
 clean:
-	$(RM) test-fastcsum *.o *.d *.a
+	$(RM) $(TARGETS) *.o *.d
 
 .PHONY: check clean
 
