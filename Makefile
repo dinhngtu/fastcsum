@@ -63,6 +63,7 @@ OBJECTS+=\
 	checksum-avx2-v3.o \
 	checksum-avx2-v5.o \
 	checksum-avx2-v6.o \
+	checksum-avx2-v7.o \
 
 else ifeq ($(ENABLE_AVX), 1)
 CPPFLAGS+=-DFASTCSUM_ENABLE_AVX=1

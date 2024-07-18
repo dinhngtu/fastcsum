@@ -46,6 +46,7 @@ extern "C" uint64_t fastcsum_nofold_avx2_v3(const uint8_t *ptr, size_t size, uin
 uint64_t fastcsum_nofold_avx2_v4(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" uint64_t fastcsum_nofold_avx2_v7(const uint8_t *ptr, size_t size, uint64_t initial);
 
 uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initial);
 uint64_t fastcsum_nofold_vec256_align(const uint8_t *ptr, size_t size, uint64_t initial);
