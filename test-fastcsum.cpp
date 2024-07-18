@@ -112,6 +112,22 @@ TEST_CASE("checksum-align") {
     test_all(ref, &pkt[off], size, 0);
 }
 
+TEST_CASE("checksum-align32") {
+    auto size = GENERATE(62, 63, 64);
+    auto off = 31;
+    auto pkt = create_packet(32, size);
+    auto ref = checksum_ref(pkt.get() + off, size - off);
+    test_all(ref, pkt.get() + off, size - off, 0);
+}
+
+TEST_CASE("checksum-align16") {
+    auto size = GENERATE(30, 31, 32);
+    auto off = 15;
+    auto pkt = create_packet(16, size);
+    auto ref = checksum_ref(pkt.get() + off, size - off);
+    test_all(ref, pkt.get() + off, size - off, 0);
+}
+
 TEST_CASE("checksum-rfc1071") {
     std::array<const uint8_t, 8> pkt{0x00, 0x01, 0xf2, 0x03, 0xf4, 0xf5, 0xf6, 0xf7};
     // fold_complement_checksum64 returns folded, complemented sum in native order

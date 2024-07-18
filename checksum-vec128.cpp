@@ -104,7 +104,7 @@ uint64_t fastcsum_nofold_vec128_align(const uint8_t *b, size_t size, uint64_t in
     u32x4 vac{};
 
     bool flip = false;
-    if (size > 16) {
+    if (size >= 16) {
         auto align = reinterpret_cast<uintptr_t>(b) & 15;
         if (align) {
             auto toadvance = 16 - align;
