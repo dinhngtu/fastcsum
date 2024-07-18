@@ -209,7 +209,7 @@ TEST_CASE("bench-unaligned") {
     auto size = GENERATE(1500, 8192, 65535);
     auto align = GENERATE(16, 32);
     auto off = GENERATE(1, 8, 31);
-    printf("size=%d, align=%d, off=%d\n", size, align, off);
+    fprintf(stderr, "size=%d, align=%d, off=%d\n", size, align, off);
     auto pkt = create_packet(align, size);
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.get() + off, size - off, 0));
