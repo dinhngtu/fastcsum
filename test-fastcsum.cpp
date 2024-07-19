@@ -25,8 +25,12 @@ static uint16_t checksum_ref(const uint8_t *buffer, int size) {
         buffer += 2;
         size -= 2;
     }
-    if (size)
-        cksum += *(const uint8_t *)buffer;
+    // https://www.rfc-editor.org/errata/eid3133
+    if (size) {
+        uint16_t last = 0;
+        *(uint8_t *)&last = *(const uint8_t *)buffer;
+        cksum += last;
+    }
 
     while (cksum >> 16)
         cksum = (cksum & 0xffff) + (cksum >> 16);
