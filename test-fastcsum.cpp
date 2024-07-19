@@ -69,6 +69,7 @@ static std::vector<uint8_t> create_packet_carry(size_t size) {
 
 void test_all(uint16_t ref, const uint8_t *buffer, size_t size, uint64_t initial) {
     TEST_CSUM(ref, fastcsum_nofold_generic64, buffer, size, initial);
+#if defined(__x86_64__)
     TEST_CSUM(ref, fastcsum_nofold_x64_128b, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_x64_64b, buffer, size, initial);
     if (fastcsum_adx_usable()) {
@@ -88,6 +89,7 @@ void test_all(uint16_t ref, const uint8_t *buffer, size_t size, uint64_t initial
         TEST_CSUM(ref, fastcsum_nofold_avx2_v6, buffer, size, initial);
         TEST_CSUM(ref, fastcsum_nofold_avx2_v7, buffer, size, initial);
     }
+#endif
     TEST_CSUM(ref, fastcsum_nofold_vec256, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_vec256_align, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_vec128, buffer, size, initial);
@@ -148,6 +150,7 @@ TEST_CASE("bench") {
     BENCHMARK("generic") {
         return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
     };
+#if defined(__x86_64__)
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
@@ -176,6 +179,7 @@ TEST_CASE("bench") {
             return fold_complement_checksum64(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
         };
     }
+#endif
     BENCHMARK("vec256") {
         return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
     };
@@ -196,6 +200,7 @@ TEST_CASE("bench-large") {
     BENCHMARK("generic") {
         return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
     };
+#if defined(__x86_64__)
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
@@ -218,6 +223,7 @@ TEST_CASE("bench-large") {
             return fold_complement_checksum64(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
         };
     }
+#endif
     BENCHMARK("vec256") {
         return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
     };
@@ -238,6 +244,7 @@ TEST_CASE("bench-unaligned") {
     auto off = GENERATE(1, 8, 31);
     fprintf(stderr, "size=%d, align=%d, off=%d\n", size, align, off);
     auto pkt = create_packet(align, size);
+#if defined(__x86_64__)
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.get() + off, size - off, 0));
     };
@@ -254,6 +261,7 @@ TEST_CASE("bench-unaligned") {
             return fold_complement_checksum64(fastcsum_nofold_avx2_v7(pkt.get() + off, size - off, 0));
         };
     }
+#endif
     BENCHMARK("vec256") {
         return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.get() + off, size - off, 0));
     };

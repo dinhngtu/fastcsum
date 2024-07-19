@@ -1,12 +1,6 @@
 CPPFLAGS+=-MMD -MP -Iinclude
 CXXFLAGS+=-Wall -Wextra -Wformat=2 -Werror=shadow -Werror=return-type -std=c++14 -fwrapv -fno-strict-aliasing
 
-ENABLE_AVX2?=0
-ENABLE_AVX?=0
-ENABLE_SSE41?=0
-ARCH=
-TUNE=
-
 ifeq ($(DEBUG), 1)
 	CPPFLAGS+=-DDEBUG=1
 	CFLAGS+=-O0 -g3 -fno-omit-frame-pointer
@@ -17,6 +11,25 @@ else
 	CXXFLAGS+=-O2 -g3
 endif
 
+TARGETS=\
+	libfastcsum.a \
+	test-fastcsum \
+	fastcsum-version \
+
+OBJECTS=\
+	checksum-generic64.o \
+	cpuid.o \
+	checksum-vec256.o \
+	checksum-vec128.o \
+
+MACHINE?=$(shell uname -p)
+ifeq ($(MACHINE),x86_64)
+ENABLE_AVX2?=0
+ENABLE_AVX?=0
+ENABLE_SSE41?=0
+ARCH=
+TUNE=
+
 ifneq ($(strip $(ARCH)),)
 	CFLAGS+=-march=$(ARCH)
 	CXXFLAGS+=-march=$(ARCH)
@@ -26,23 +39,14 @@ ifneq ($(strip $(TUNE)),)
 	CXXFLAGS+=-mtune=$(TUNE)
 endif
 
-TARGETS=\
-	libfastcsum.a \
-	test-fastcsum \
-	fastcsum-version \
-
-OBJECTS=\
-	checksum-generic64.o \
+OBJECTS+=\
 	checksum-x64-128b.o \
 	checksum-x64-64b.o \
-	cpuid.o \
 	checksum-adx.o \
 	checksum-adx-v2.o \
 	checksum-adx-align.o \
 	checksum-adx-align2.o \
 	checksum-avx2.o \
-	checksum-vec256.o \
-	checksum-vec128.o \
 
 OBJECTS_AVX2=\
 	checksum-avx2.o \
@@ -74,6 +78,8 @@ CPPFLAGS+=-DFASTCSUM_ENABLE_SSE41=1
 $(OBJECTS_SSE41): CXXFLAGS+=-msse4.1
 
 endif
+
+endif # MACHINE
 
 DEPS=$(OBJECTS:.o=.d)
 
