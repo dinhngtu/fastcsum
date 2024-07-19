@@ -44,7 +44,10 @@ uint64_t fastcsum_nofold_generic64(const uint8_t *b, size_t size, uint64_t initi
         size -= 2;
     }
     if (size) {
-        ac = addc(ac, static_cast<uint64_t>(b[0]), 0, &carry);
+        uint64_t lastbyte = b[0];
+        if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+            lastbyte <<= 8;
+        ac = addc(ac, lastbyte, 0, &carry);
         ac += carry;
     }
 
