@@ -41,9 +41,9 @@ fastcsum_nofold_avx2_v7:
 
     sub rsi, rdx
 
-.align16:
+.Lalign16:
     cmp edx, 16                     # two qwords
-    jb .align8
+    jb .Lalign8
 
     add rax, [rdi]
     adc rax, [rdi + 8]
@@ -52,9 +52,9 @@ fastcsum_nofold_avx2_v7:
     sub edx, 16
     add rdi, 16
 
-.align8:
+.Lalign8:
     cmp edx, 8                      # one qword
-    jb .align4
+    jb .Lalign4
 
     add rax, [rdi]
     adc rax, 0
@@ -62,9 +62,9 @@ fastcsum_nofold_avx2_v7:
     sub edx, 8
     add rdi, 8
 
-.align4:
+.Lalign4:
     cmp edx, 4                      # one dword
-    jb .align2
+    jb .Lalign2
 
     mov r9d, dword ptr [rdi]
     add rax, r9
@@ -73,9 +73,9 @@ fastcsum_nofold_avx2_v7:
     sub edx, 4
     add rdi, 4
 
-.align2:
+.Lalign2:
     cmp edx, 2                      # one word
-    jb .align1
+    jb .Lalign1
 
     movzx r9, word ptr [rdi]
     add rax, r9
@@ -84,7 +84,7 @@ fastcsum_nofold_avx2_v7:
     sub edx, 2
     add rdi, 2
 
-.align1:
+.Lalign1:
     cmp edx, 1                      # last byte
     jb 256f
 
@@ -280,9 +280,9 @@ fastcsum_nofold_avx2_v7:
     adc rax, 0
 
     test ecx, 1
-    jz .done
+    jz .Ldone
     bswap rax
 
-.done:
+.Ldone:
     vzeroupper
     ret
