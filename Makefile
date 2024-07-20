@@ -96,6 +96,7 @@ libfastcsum.a: $(OBJECTS)
 	$(AR) rcs $@ $^
 
 test-fastcsum: libfastcsum.a catch_amalgamated.o
+test-fastcsum: CXXFLAGS+=-Wno-deprecated-declarations
 
 fastcsum-version: libfastcsum.a
 

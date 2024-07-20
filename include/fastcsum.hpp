@@ -30,13 +30,13 @@ static inline bool fastcsum_adx_usable() {
 }
 
 // Dual-carry ADX-based implementation.
-extern "C" uint64_t fastcsum_nofold_adx(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" [[deprecated]] uint64_t fastcsum_nofold_adx(const uint8_t *ptr, size_t size, uint64_t initial);
 // Dual-carry ADX-based implementation.
 extern "C" uint64_t fastcsum_nofold_adx_v2(const uint8_t *ptr, size_t size, uint64_t initial);
 // Dual-carry ADX-based implementation with load alignment.
-extern "C" uint64_t fastcsum_nofold_adx_align(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" [[deprecated]] uint64_t fastcsum_nofold_adx_align(const uint8_t *ptr, size_t size, uint64_t initial);
 // Dual-carry ADX-based implementation with load alignment.
-extern "C" uint64_t fastcsum_nofold_adx_align2(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" [[deprecated]] uint64_t fastcsum_nofold_adx_align2(const uint8_t *ptr, size_t size, uint64_t initial);
 
 bool fastcsum_built_with_avx2();
 bool fastcsum_cpu_has_avx2();
@@ -51,19 +51,19 @@ bool fastcsum_cpu_has_sse41();
 fastcsum_feature_helper(sse41);
 
 // 128 bytes/loop intrinsic-based AVX2 implementation.
-uint64_t fastcsum_nofold_avx2(const uint8_t *ptr, size_t size, uint64_t initial);
+[[deprecated]] uint64_t fastcsum_nofold_avx2(const uint8_t *ptr, size_t size, uint64_t initial);
 // 128 bytes/loop intrinsic-based AVX2 implementation with load alignment.
-uint64_t fastcsum_nofold_avx2_align(const uint8_t *ptr, size_t size, uint64_t initial);
+[[deprecated]] uint64_t fastcsum_nofold_avx2_align(const uint8_t *ptr, size_t size, uint64_t initial);
 // 128 bytes/loop intrinsic-based AVX2 implementation with parallel addition.
-uint64_t fastcsum_nofold_avx2_v2(const uint8_t *ptr, size_t size, uint64_t initial);
+[[deprecated]] uint64_t fastcsum_nofold_avx2_v2(const uint8_t *ptr, size_t size, uint64_t initial);
 // 256 bytes/loop intrinsic-based AVX2 implementation with parallel addition.
-uint64_t fastcsum_nofold_avx2_256b(const uint8_t *ptr, size_t size, uint64_t initial);
+[[deprecated]] uint64_t fastcsum_nofold_avx2_256b(const uint8_t *ptr, size_t size, uint64_t initial);
 // Plain assembly version converted from `avx2_256b` compiled with Clang.
-extern "C" uint64_t fastcsum_nofold_avx2_v3(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" [[deprecated]] uint64_t fastcsum_nofold_avx2_v3(const uint8_t *ptr, size_t size, uint64_t initial);
 // Same as `avx2`.
-uint64_t fastcsum_nofold_avx2_v4(const uint8_t *ptr, size_t size, uint64_t initial);
+[[deprecated]] uint64_t fastcsum_nofold_avx2_v4(const uint8_t *ptr, size_t size, uint64_t initial);
 // Pure assembly version of `avx2_256b`.
-extern "C" uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uint64_t initial);
+extern "C" [[deprecated]] uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uint64_t initial);
 // `avx2_v5` with load optimization.
 extern "C" uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uint64_t initial);
 // 256 bytes/loop plain assembly version with parallel addition and load alignment.

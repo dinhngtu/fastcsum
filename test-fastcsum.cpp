@@ -170,20 +170,11 @@ TEST_CASE("bench") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
     if (fastcsum_adx_usable()) {
-        BENCHMARK("adx") {
-            return fold_complement_checksum64(fastcsum_nofold_adx(pkt.data(), pkt.size(), 0));
-        };
         BENCHMARK("adx_v2") {
             return fold_complement_checksum64(fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
         };
     }
     if (fastcsum_avx2_usable()) {
-        BENCHMARK("avx2_256b") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_256b(pkt.data(), pkt.size(), 0));
-        };
-        BENCHMARK("avx2_v3") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v3(pkt.data(), pkt.size(), 0));
-        };
         BENCHMARK("avx2_v6") {
             return fold_complement_checksum64(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
         };
@@ -218,9 +209,6 @@ TEST_CASE("bench-large") {
     BENCHMARK("simple_opt") {
         return fold_complement_checksum64(fastcsum_nofold_simple_opt(pkt.data(), pkt.size(), 0));
     };
-    BENCHMARK("simple2") {
-        return fold_complement_checksum64(fastcsum_nofold_simple2(pkt.data(), pkt.size(), 0));
-    };
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
@@ -231,12 +219,6 @@ TEST_CASE("bench-large") {
         };
     }
     if (fastcsum_avx2_usable()) {
-        BENCHMARK("avx2_256b") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_256b(pkt.data(), pkt.size(), 0));
-        };
-        BENCHMARK("avx2_v3") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v3(pkt.data(), pkt.size(), 0));
-        };
         BENCHMARK("avx2_v6") {
             return fold_complement_checksum64(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
         };
