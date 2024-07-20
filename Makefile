@@ -1,4 +1,4 @@
-CPPFLAGS+=-MMD -MP -Iinclude
+CPPFLAGS+=-MMD -MP -Iinclude -I. -Icontrib
 CXXFLAGS+=-Wall -Wextra -Wformat=2 -Werror=shadow -Werror=return-type -std=c++14 -fwrapv -fno-strict-aliasing
 
 ifeq ($(DEBUG), 1)
@@ -42,16 +42,16 @@ ifneq ($(strip $(TUNE)),)
 endif
 
 OBJECTS+=\
-	checksum-x64-128b.o \
-	checksum-x64-64b.o \
-	checksum-adx.o \
-	checksum-adx-v2.o \
-	checksum-adx-align.o \
-	checksum-adx-align2.o \
-	checksum-avx2.o \
+	x86/asm/checksum-x64-128b.o \
+	x86/asm/checksum-x64-64b.o \
+	x86/asm/checksum-adx.o \
+	x86/asm/checksum-adx-v2.o \
+	x86/asm/checksum-adx-align.o \
+	x86/asm/checksum-adx-align2.o \
+	x86/checksum-avx2.o \
 
 OBJECTS_AVX2=\
-	checksum-avx2.o \
+	x86/checksum-avx2.o \
 	checksum-vec256.o \
 	checksum-vec128.o \
 	checksum-simple-opt.o \
@@ -70,10 +70,10 @@ ifeq ($(ENABLE_AVX2), 1)
 CPPFLAGS+=-DFASTCSUM_ENABLE_AVX2=1
 $(OBJECTS_AVX2): CXXFLAGS+=-mavx2
 OBJECTS+=\
-	checksum-avx2-v3.o \
-	checksum-avx2-v5.o \
-	checksum-avx2-v6.o \
-	checksum-avx2-v7.o \
+	x86/asm/checksum-avx2-v3.o \
+	x86/asm/checksum-avx2-v5.o \
+	x86/asm/checksum-avx2-v6.o \
+	x86/asm/checksum-avx2-v7.o \
 
 else ifeq ($(ENABLE_AVX), 1)
 CPPFLAGS+=-DFASTCSUM_ENABLE_AVX=1
@@ -96,7 +96,7 @@ checksum-simple-opt.o: CXXFLAGS+=-O3
 libfastcsum.a: $(OBJECTS)
 	$(AR) rcs $@ $^
 
-test-fastcsum: libfastcsum.a catch_amalgamated.o
+test-fastcsum: libfastcsum.a contrib/catch_amalgamated.o
 test-fastcsum: CXXFLAGS+=-Wno-deprecated-declarations
 
 fastcsum-version: libfastcsum.a
@@ -105,7 +105,7 @@ check: test-fastcsum
 	./$< --skip-benchmarks
 
 clean:
-	$(RM) $(TARGETS) *.o *.d
+	$(RM) $(TARGETS) $(OBJECTS) $(DEPS) *.o *.d
 
 .PHONY: check clean
 
