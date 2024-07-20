@@ -62,6 +62,7 @@ OBJECTS_AVX=\
 	checksum-simple-opt.o \
 
 OBJECTS_SSE41=\
+	checksum-vec256.o \
 	checksum-vec128.o \
 	checksum-simple-opt.o \
 

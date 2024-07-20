@@ -84,4 +84,15 @@ bool fastcsum_cpu_has_sse41() {
 }
 #endif
 
+bool fastcsum_vector_usable() {
+    if (fastcsum_built_with_avx2())
+        return fastcsum_cpu_has_avx2();
+    else if (fastcsum_built_with_avx())
+        return fastcsum_cpu_has_avx();
+    else if (fastcsum_built_with_sse41())
+        return fastcsum_cpu_has_sse41();
+    else
+        return true;
+}
+
 } // namespace fastcsum
