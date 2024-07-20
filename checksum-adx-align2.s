@@ -101,7 +101,6 @@ fastcsum_nofold_adx_align2:
     sub rsi, 32
     add rdi, 32
 
-    # we start using r9 later so don't "adcx/adox reg, r9" any more
 16:
     cmp rsi, 16                     # two qwords
     jb 8f
