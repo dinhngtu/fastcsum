@@ -11,6 +11,9 @@
 namespace fastcsum {
 
 uint64_t fastcsum_nofold_generic64(const uint8_t *b, size_t size, uint64_t initial);
+uint64_t fastcsum_nofold_simple(const uint8_t *b, size_t size, uint64_t initial);
+uint64_t fastcsum_nofold_simple_opt(const uint8_t *b, size_t size, uint64_t initial);
+uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_x64_128b(const uint8_t *ptr, size_t size, uint64_t initial);
 extern "C" uint64_t fastcsum_nofold_x64_64b(const uint8_t *ptr, size_t size, uint64_t initial);
 

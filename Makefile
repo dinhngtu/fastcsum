@@ -18,6 +18,8 @@ TARGETS=\
 
 OBJECTS=\
 	checksum-generic64.o \
+	checksum-simple.o \
+	checksum-simple-opt.o \
 	cpuid.o \
 	checksum-vec256.o \
 	checksum-vec128.o \
@@ -52,13 +54,16 @@ OBJECTS_AVX2=\
 	checksum-avx2.o \
 	checksum-vec256.o \
 	checksum-vec128.o \
+	checksum-simple-opt.o \
 
 OBJECTS_AVX=\
 	checksum-vec256.o \
 	checksum-vec128.o \
+	checksum-simple-opt.o \
 
 OBJECTS_SSE41=\
 	checksum-vec128.o \
+	checksum-simple-opt.o \
 
 ifeq ($(ENABLE_AVX2), 1)
 CPPFLAGS+=-DFASTCSUM_ENABLE_AVX2=1
@@ -84,6 +89,8 @@ endif # MACHINE
 DEPS=$(OBJECTS:.o=.d)
 
 all: $(TARGETS)
+
+checksum-simple-opt.o: CXXFLAGS+=-O3
 
 libfastcsum.a: $(OBJECTS)
 	$(AR) rcs $@ $^

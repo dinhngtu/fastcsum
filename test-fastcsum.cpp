@@ -69,6 +69,9 @@ static std::vector<uint8_t> create_packet_carry(size_t size) {
 
 void test_all(uint16_t ref, const uint8_t *buffer, size_t size, uint64_t initial) {
     TEST_CSUM(ref, fastcsum_nofold_generic64, buffer, size, initial);
+    TEST_CSUM(ref, fastcsum_nofold_simple, buffer, size, initial);
+    TEST_CSUM(ref, fastcsum_nofold_simple_opt, buffer, size, initial);
+    TEST_CSUM(ref, fastcsum_nofold_simple2, buffer, size, initial);
 #if defined(__x86_64__)
     TEST_CSUM(ref, fastcsum_nofold_x64_128b, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_x64_64b, buffer, size, initial);
@@ -150,6 +153,15 @@ TEST_CASE("bench") {
     BENCHMARK("generic") {
         return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
     };
+    BENCHMARK("simple") {
+        return fold_complement_checksum64(fastcsum_nofold_simple(pkt.data(), pkt.size(), 0));
+    };
+    BENCHMARK("simple_opt") {
+        return fold_complement_checksum64(fastcsum_nofold_simple_opt(pkt.data(), pkt.size(), 0));
+    };
+    BENCHMARK("simple2") {
+        return fold_complement_checksum64(fastcsum_nofold_simple2(pkt.data(), pkt.size(), 0));
+    };
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
@@ -200,6 +212,15 @@ TEST_CASE("bench-large") {
     BENCHMARK("generic") {
         return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
     };
+    BENCHMARK("simple") {
+        return fold_complement_checksum64(fastcsum_nofold_simple(pkt.data(), pkt.size(), 0));
+    };
+    BENCHMARK("simple_opt") {
+        return fold_complement_checksum64(fastcsum_nofold_simple_opt(pkt.data(), pkt.size(), 0));
+    };
+    BENCHMARK("simple2") {
+        return fold_complement_checksum64(fastcsum_nofold_simple2(pkt.data(), pkt.size(), 0));
+    };
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
@@ -244,6 +265,9 @@ TEST_CASE("bench-unaligned") {
     auto off = GENERATE(1, 8, 31);
     fprintf(stderr, "size=%d, align=%d, off=%d\n", size, align, off);
     auto pkt = create_packet(align, size);
+    BENCHMARK("simple_opt") {
+        return fold_complement_checksum64(fastcsum_nofold_simple_opt(pkt.get() + off, size - off, 0));
+    };
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
         return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.get() + off, size - off, 0));
