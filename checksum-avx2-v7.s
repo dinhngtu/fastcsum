@@ -29,8 +29,8 @@ fastcsum_nofold_avx2_v7:
     vpxor ymm0, ymm0, ymm0          # ymm0 is vector accumulator
 
     # alignment
-    cmp rsi, 32
-    jb 16f
+    cmp rsi, 64
+    jb 32f
 
     mov ecx, edi
     and ecx, 31                     # ecx is now masked offset
