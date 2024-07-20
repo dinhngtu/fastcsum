@@ -374,6 +374,7 @@ fastcsum_no_avx2(fastcsum_nofold_avx2_v4);
 extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v5);
 extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v6);
 extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v7);
+extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v8);
 
 #endif
 
