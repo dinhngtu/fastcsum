@@ -3,8 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
+                "${workspaceFolder}/include",
                 "${workspaceFolder}",
-                "${workspaceFolder}/include"
+                "${workspaceFolder}/contrib"
             ],
             "defines": [
                 "FASTCSUM_ENABLE_AVX2=1"
