@@ -155,8 +155,8 @@ fastcsum_nofold_adx_align2:
 0:
     # remaining byteswap
     test edx, 1
-    jz .done
+    jz .Ldone
     bswap rax
 
-.done:
+.Ldone:
     ret
