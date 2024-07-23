@@ -6,7 +6,7 @@ using namespace fastcsum::impl;
 namespace fastcsum {
 
 uint64_t fastcsum_nofold_simple_opt(const uint8_t *b, size_t size, uint64_t initial) {
-    uint64_t ac = initial;
+    uint64_t ac = 0;
 
     while (size >= 4) {
         ac += *reinterpret_cast<const uint32_t *>(&b[0]);
@@ -25,6 +25,9 @@ uint64_t fastcsum_nofold_simple_opt(const uint8_t *b, size_t size, uint64_t init
         ac += lastbyte;
     }
 
+    ac += initial;
+    if (ac < initial)
+        ac++;
     return ac;
 }
 
