@@ -2,7 +2,7 @@
 #include <cpuid.h>
 #endif
 
-namespace fastcsum {
+extern "C" {
 
 #if defined(__x86_64__)
 bool fastcsum_built_with_adx() {
@@ -94,5 +94,4 @@ bool fastcsum_vector_usable() {
     else
         return true;
 }
-
-} // namespace fastcsum
+}

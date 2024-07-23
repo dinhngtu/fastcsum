@@ -1,7 +1,5 @@
 #include <cstdio>
-#include "fastcsum.hpp"
-
-using namespace fastcsum;
+#include "fastcsum.h"
 
 int main() {
     printf("built with adx   : %d\n", fastcsum_built_with_adx());
@@ -15,5 +13,7 @@ int main() {
 
     printf("built with sse41 : %d\n", fastcsum_built_with_sse41());
     printf("cpu has sse41    : %d\n", fastcsum_cpu_has_sse41());
+
+    printf("vector usable    : %d\n", fastcsum_vector_usable());
     return 0;
 }

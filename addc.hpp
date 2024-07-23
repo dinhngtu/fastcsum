@@ -6,9 +6,6 @@
 #include <x86intrin.h>
 #endif
 
-namespace fastcsum {
-namespace impl {
-
 template <typename T>
 [[gnu::always_inline]] static inline T addc_fallback(T a, T b, T cin, T *cout) {
     T s;
@@ -145,6 +142,3 @@ static inline uint64_t csum_31bytes(const uint8_t *b, size_t size, uint64_t init
     }
     return ac;
 }
-
-} // namespace impl
-} // namespace fastcsum

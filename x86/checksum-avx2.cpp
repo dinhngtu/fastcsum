@@ -1,17 +1,28 @@
-#include <stdexcept>
+#include <cstdlib>
 #include <cpuid.h>
 #include <immintrin.h>
 
-#include "fastcsum.hpp"
+#include "fastcsum.h"
 #include "addc.hpp"
 
-using namespace fastcsum::impl;
+#if !FASTCSUM_ENABLE_AVX2
 
-namespace fastcsum {
+#define fastcsum_no_avx2(f) \
+    extern "C" uint64_t f([[maybe_unused]] const uint8_t *, [[maybe_unused]] size_t, [[maybe_unused]] uint64_t) { \
+        abort(); \
+    }
 
-#if FASTCSUM_ENABLE_AVX2
+fastcsum_no_avx2(fastcsum_nofold_avx2);
+fastcsum_no_avx2(fastcsum_nofold_avx2_align);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v2);
+fastcsum_no_avx2(fastcsum_nofold_avx2_256b);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v3);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v4);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v5);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v6);
+fastcsum_no_avx2(fastcsum_nofold_avx2_v7);
 
-namespace impl {
+#else
 
 static inline void addc_epi32(__m256i &s, __m256i &c, __m256i a, __m256i b) {
     __m256i mask = _mm256_set1_epi32(0x80000000);
@@ -33,9 +44,7 @@ static inline uint64_t addc_fold_epi64(__m256i &v, uint64_t initial) {
     return ac;
 }
 
-} // namespace impl
-
-uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
     __m256i vac = _mm256_setzero_si256();
     __m256i v, s, c;
@@ -87,7 +96,7 @@ uint64_t fastcsum_nofold_avx2(const uint8_t *b, size_t size, uint64_t initial) {
     return ac;
 }
 
-uint64_t fastcsum_nofold_avx2_align(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_avx2_align(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
     __m256i vac = _mm256_setzero_si256();
     __m256i v, s, c;
@@ -156,7 +165,7 @@ uint64_t fastcsum_nofold_avx2_align(const uint8_t *b, size_t size, uint64_t init
     return ac;
 }
 
-uint64_t fastcsum_nofold_avx2_v2(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_avx2_v2(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
     __m256i vac = _mm256_setzero_si256();
     __m256i v, s, c;
@@ -212,7 +221,7 @@ uint64_t fastcsum_nofold_avx2_v2(const uint8_t *b, size_t size, uint64_t initial
     return ac;
 }
 
-uint64_t fastcsum_nofold_avx2_256b(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_avx2_256b(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
     __m256i vac = _mm256_setzero_si256();
     __m256i v, s, c;
@@ -306,7 +315,7 @@ uint64_t fastcsum_nofold_avx2_256b(const uint8_t *b, size_t size, uint64_t initi
     return ac;
 }
 
-uint64_t fastcsum_nofold_avx2_v4(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_avx2_v4(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
     __m256i vac = _mm256_setzero_si256();
     __m256i v, s, c;
@@ -358,23 +367,4 @@ uint64_t fastcsum_nofold_avx2_v4(const uint8_t *b, size_t size, uint64_t initial
     return ac;
 }
 
-#else
-
-#define fastcsum_no_avx2(f) \
-    uint64_t f([[maybe_unused]] const uint8_t *, [[maybe_unused]] size_t, [[maybe_unused]] uint64_t) { \
-        throw std::logic_error("fastcsum was not built with AVX2"); \
-    }
-
-fastcsum_no_avx2(fastcsum_nofold_avx2);
-fastcsum_no_avx2(fastcsum_nofold_avx2_align);
-fastcsum_no_avx2(fastcsum_nofold_avx2_v2);
-fastcsum_no_avx2(fastcsum_nofold_avx2_256b);
-extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v3);
-fastcsum_no_avx2(fastcsum_nofold_avx2_v4);
-extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v5);
-extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v6);
-extern "C" fastcsum_no_avx2(fastcsum_nofold_avx2_v7);
-
 #endif
-
-} // namespace fastcsum

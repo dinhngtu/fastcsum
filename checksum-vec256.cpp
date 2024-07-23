@@ -1,10 +1,5 @@
-#include "fastcsum.hpp"
+#include "fastcsum.h"
 #include "addc.hpp"
-
-using namespace fastcsum::impl;
-
-namespace fastcsum {
-namespace impl {
 
 using u32x8 [[gnu::vector_size(32)]] = uint32_t;
 using u32x8u [[gnu::vector_size(32), gnu::aligned(1), gnu::may_alias]] = uint32_t;
@@ -22,9 +17,7 @@ using u64x4 [[gnu::vector_size(32)]] = uint64_t;
     return ac;
 }
 
-} // namespace impl
-
-uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
     u32x8 vac{};
 
@@ -109,7 +102,7 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *b, size_t size, uint64_t initial)
     return ac;
 }
 
-uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t initial) {
     unsigned long long ac = initial;
     u32x8 vac{};
 
@@ -209,5 +202,3 @@ uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, uint64_t in
 
     return ac;
 }
-
-} // namespace fastcsum

@@ -1,11 +1,7 @@
-#include "fastcsum.hpp"
+#include "fastcsum.h"
 #include "addc.hpp"
 
-using namespace fastcsum::impl;
-
-namespace fastcsum {
-
-uint64_t fastcsum_nofold_simple(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_simple(const uint8_t *b, size_t size, uint64_t initial) {
     uint64_t ac = initial;
 
     while (size >= 4) {
@@ -28,7 +24,7 @@ uint64_t fastcsum_nofold_simple(const uint8_t *b, size_t size, uint64_t initial)
     return ac;
 }
 
-uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint64_t initial) {
+extern "C" uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint64_t initial) {
     uint64_t ac = initial;
 
     while (size >= 8) {
@@ -66,5 +62,3 @@ uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint64_t initial
 
     return ac;
 }
-
-} // namespace fastcsum

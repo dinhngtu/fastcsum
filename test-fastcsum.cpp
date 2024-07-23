@@ -8,9 +8,7 @@
 
 #include "catch_amalgamated.hpp"
 
-#include "fastcsum.hpp"
-
-using namespace fastcsum;
+#include "fastcsum.h"
 
 #define TEST_CSUM(ref, impl, b, size, initial) \
     do { \
