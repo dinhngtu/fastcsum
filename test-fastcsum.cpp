@@ -12,7 +12,7 @@
 
 #define TEST_CSUM(ref, impl, b, size, initial) \
     do { \
-        REQUIRE((ref) == fold_complement_checksum64(impl((b), (size), (initial)))); \
+        REQUIRE((ref) == fastcsum_fold_complement(impl((b), (size), (initial)))); \
     } while (0);
 
 // https://stackoverflow.com/a/8845286/8642889
@@ -140,7 +140,7 @@ TEST_CASE("checksum-align16") {
 
 TEST_CASE("checksum-rfc1071") {
     std::array<const uint8_t, 8> pkt{0x00, 0x01, 0xf2, 0x03, 0xf4, 0xf5, 0xf6, 0xf7};
-    // fold_complement_checksum64 returns folded, complemented sum in native order
+    // fastcsum_fold_complement returns folded, complemented sum in native order
     // whereas 0xddf2 is the folded, non-complemented sum in network order
     uint16_t sum_rfc1071 = 0xddf2;
     uint16_t ref = ntohs(~sum_rfc1071);
@@ -151,47 +151,47 @@ TEST_CASE("bench") {
     auto size = GENERATE(40, 128, 576, 1500, 2048, 4096, 8192, 16384, 32768, 65535);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
-        return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
+        return fastcsum_fold_complement(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
     };
     BENCHMARK("simple") {
-        return fold_complement_checksum64(fastcsum_nofold_simple(pkt.data(), pkt.size(), 0));
+        return fastcsum_fold_complement(fastcsum_nofold_simple(pkt.data(), pkt.size(), 0));
     };
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
-        return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
+        return fastcsum_fold_complement(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
     BENCHMARK("x64_64b") {
-        return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
+        return fastcsum_fold_complement(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
     if (fastcsum_adx_usable()) {
         BENCHMARK("adx_v2") {
-            return fold_complement_checksum64(fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
         };
     }
     if (fastcsum_avx2_usable()) {
         BENCHMARK("avx2_v6") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("avx2_v7") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
         };
     }
 #endif
     if (fastcsum_vector_usable()) {
         BENCHMARK("simple_opt") {
-            return fold_complement_checksum64(fastcsum_nofold_simple_opt(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_simple_opt(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec256") {
-            return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec256_align") {
-            return fold_complement_checksum64(fastcsum_nofold_vec256_align(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec256_align(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec128") {
-            return fold_complement_checksum64(fastcsum_nofold_vec128(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec128(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec128_align") {
-            return fold_complement_checksum64(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
         };
     }
 }
@@ -200,44 +200,44 @@ TEST_CASE("bench-large") {
     auto size = GENERATE(1500, 2048, 4096, 8192, 16384, 32768, 65535);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
-        return fold_complement_checksum64(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
+        return fastcsum_fold_complement(fastcsum_nofold_generic64(pkt.data(), pkt.size(), 0));
     };
     BENCHMARK("simple") {
-        return fold_complement_checksum64(fastcsum_nofold_simple(pkt.data(), pkt.size(), 0));
+        return fastcsum_fold_complement(fastcsum_nofold_simple(pkt.data(), pkt.size(), 0));
     };
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
-        return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
+        return fastcsum_fold_complement(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
     if (fastcsum_adx_usable()) {
         BENCHMARK("adx_v2") {
-            return fold_complement_checksum64(fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
         };
     }
     if (fastcsum_avx2_usable()) {
         BENCHMARK("avx2_v6") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("avx2_v7") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
         };
     }
 #endif
     if (fastcsum_vector_usable()) {
         BENCHMARK("simple_opt") {
-            return fold_complement_checksum64(fastcsum_nofold_simple_opt(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_simple_opt(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec256") {
-            return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec256(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec256_align") {
-            return fold_complement_checksum64(fastcsum_nofold_vec256_align(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec256_align(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec128") {
-            return fold_complement_checksum64(fastcsum_nofold_vec128(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec128(pkt.data(), pkt.size(), 0));
         };
         BENCHMARK("vec128_align") {
-            return fold_complement_checksum64(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
         };
     }
 }
@@ -250,37 +250,37 @@ TEST_CASE("bench-unaligned") {
     auto pkt = create_packet(align, size);
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
-        return fold_complement_checksum64(fastcsum_nofold_x64_128b(pkt.get() + off, size - off, 0));
+        return fastcsum_fold_complement(fastcsum_nofold_x64_128b(pkt.get() + off, size - off, 0));
     };
     if (fastcsum_adx_usable()) {
         BENCHMARK("adx_v2") {
-            return fold_complement_checksum64(fastcsum_nofold_adx_v2(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_adx_v2(pkt.get() + off, size - off, 0));
         };
     }
     if (fastcsum_avx2_usable()) {
         BENCHMARK("avx2_v6") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v6(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_avx2_v6(pkt.get() + off, size - off, 0));
         };
         BENCHMARK("avx2_v7") {
-            return fold_complement_checksum64(fastcsum_nofold_avx2_v7(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_avx2_v7(pkt.get() + off, size - off, 0));
         };
     }
 #endif
     if (fastcsum_vector_usable()) {
         BENCHMARK("simple_opt") {
-            return fold_complement_checksum64(fastcsum_nofold_simple_opt(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_simple_opt(pkt.get() + off, size - off, 0));
         };
         BENCHMARK("vec256") {
-            return fold_complement_checksum64(fastcsum_nofold_vec256(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec256(pkt.get() + off, size - off, 0));
         };
         BENCHMARK("vec256_align") {
-            return fold_complement_checksum64(fastcsum_nofold_vec256_align(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec256_align(pkt.get() + off, size - off, 0));
         };
         BENCHMARK("vec128") {
-            return fold_complement_checksum64(fastcsum_nofold_vec128(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec128(pkt.get() + off, size - off, 0));
         };
         BENCHMARK("vec128_align") {
-            return fold_complement_checksum64(fastcsum_nofold_vec128_align(pkt.get() + off, size - off, 0));
+            return fastcsum_fold_complement(fastcsum_nofold_vec128_align(pkt.get() + off, size - off, 0));
         };
     }
 }

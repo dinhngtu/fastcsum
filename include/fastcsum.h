@@ -97,7 +97,7 @@ uint64_t fastcsum_nofold_vec128_align(const uint8_t *ptr, size_t size, uint64_t 
  * Note that initial, partial and final checksum values must all be loaded and stored in **native** order.
  * See explanation below.
  */
-__attribute__((always_inline)) static inline uint16_t fold_complement_checksum64(uint64_t initial) {
+__attribute__((always_inline)) static inline uint16_t fastcsum_fold_complement(uint64_t initial) {
     uint32_t ac32;
     bool c1 = __builtin_add_overflow((uint32_t)(initial >> 32), (uint32_t)(initial & 0xffffffff), &ac32);
     ac32 += c1;
