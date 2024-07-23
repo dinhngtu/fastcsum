@@ -151,7 +151,7 @@ TEST_CASE("checksum-rfc1071") {
     test_all(ref, pkt.data(), pkt.size(), 0);
 }
 
-TEST_CASE("bench") {
+TEST_CASE("bench", "[!benchmark]") {
     auto size = GENERATE(40, 128, 576, 1500, 2048, 4096, 8192, 16384, 32768, 65535);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
@@ -200,7 +200,7 @@ TEST_CASE("bench") {
     }
 }
 
-TEST_CASE("bench-large") {
+TEST_CASE("bench-large", "[!benchmark]") {
     auto size = GENERATE(1500, 2048, 4096, 8192, 16384, 32768, 65535);
     auto pkt = create_packet(size);
     BENCHMARK("generic") {
@@ -246,11 +246,10 @@ TEST_CASE("bench-large") {
     }
 }
 
-TEST_CASE("bench-unaligned") {
+TEST_CASE("bench-unaligned", "[!benchmark]") {
     auto size = GENERATE(1500, 8192, 65535);
     auto align = GENERATE(16, 32);
     auto off = GENERATE(1, 8, 31);
-    fprintf(stderr, "size=%d, align=%d, off=%d\n", size, align, off);
     auto pkt = create_packet(align, size);
 #if defined(__x86_64__)
     BENCHMARK("x64_128b") {
