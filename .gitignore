@@ -1,5 +1,2 @@
-*.o
-*.d
-*.a
-test-fastcsum
-fastcsum-version
+build/
+vcpkg_installed/

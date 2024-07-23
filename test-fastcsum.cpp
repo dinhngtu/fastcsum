@@ -3,10 +3,14 @@
 #include <cstdio>
 #include <climits>
 #include <vector>
+#include <memory>
 #include <random>
 #include <arpa/inet.h>
-
-#include "catch_amalgamated.hpp"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_get_random_seed.hpp>
+#include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
+#include <catch2/benchmark/catch_benchmark.hpp>
 
 #include "fastcsum.h"
 

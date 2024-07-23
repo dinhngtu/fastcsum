@@ -1,0 +1,7 @@
+{
+  "name": "fastcsum",
+  "version": "0.1",
+  "dependencies": [
+    "catch2"
+  ]
+}
