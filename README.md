@@ -16,7 +16,3 @@ License
 -------
 
 MIT.
-
-This repository includes a copy of
-[Catch2 v3.6.0](https://github.com/catchorg/Catch2/releases/tag/v3.6.0),
-distributed under the Boost Software License, version 1.0.
