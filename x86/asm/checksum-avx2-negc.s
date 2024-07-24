@@ -1,15 +1,17 @@
 .intel_syntax noprefix
 
 # no cobbling, except S=A
-.macro x_padcd_negc s, c, a, b
+.macro xvpadcd s, c, a, b
     vpaddd \s, \a, \b
-    vpcmpgtd \c, \b, \s
+    vpminud \c, \s, \b
+    vpcmpeqd \c, \s, \c
 .endm
 
 # no cobbling, except C=A; B can be memory operand
-.macro x_padcdm_negc s, c, a, b
+.macro xvpadcdm s, c, a, b
     vpaddd \s, \a, \b
-    vpcmpgtd \c, \a, \s
+    vpminud \c, \s, \a
+    vpcmpeqd \c, \s, \c
 .endm
 
 .global fastcsum_nofold_avx2_negc
@@ -23,7 +25,6 @@ fastcsum_nofold_avx2_negc:
 
     mov rax, rdx                    # accumulator
     xor ecx, ecx                    # ecx is align scratch/flip
-    xor r9, r9                      # r9 is scratch
     vpxor ymm0, ymm0, ymm0          # ymm0 is vector accumulator
 
     # alignment
@@ -102,10 +103,10 @@ fastcsum_nofold_avx2_negc:
     vmovdqa ymm6, ymmword ptr [rdi + 128]
     vmovdqa ymm8, ymmword ptr [rdi + 192]
 
-    x_padcdm_negc ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
-    x_padcdm_negc ymm3, ymm4, ymm4, (ymmword ptr [rdi + 96])
-    x_padcdm_negc ymm5, ymm6, ymm6, (ymmword ptr [rdi + 160])
-    x_padcdm_negc ymm7, ymm8, ymm8, (ymmword ptr [rdi + 224])
+    xvpadcdm ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
+    xvpadcdm ymm3, ymm4, ymm4, (ymmword ptr [rdi + 96])
+    xvpadcdm ymm5, ymm6, ymm6, (ymmword ptr [rdi + 160])
+    xvpadcdm ymm7, ymm8, ymm8, (ymmword ptr [rdi + 224])
 
     # first carry reduction
     vpaddd ymm2, ymm2, ymm4
@@ -113,13 +114,13 @@ fastcsum_nofold_avx2_negc:
     # remaining: ymm1/3/5/7 (sums), ymm2/6 (carries)
 
     # second reduction
-    x_padcd_negc ymm1, ymm4, ymm1, ymm3
-    x_padcd_negc ymm5, ymm8, ymm5, ymm7
+    xvpadcd ymm1, ymm4, ymm1, ymm3
+    xvpadcd ymm5, ymm8, ymm5, ymm7
     # ymm1/5 are now sum of all loaded values
     # remaining carries: ymm2/4/6/8
 
     # third reduction
-    x_padcd_negc ymm1, ymm3, ymm1, ymm5
+    xvpadcd ymm1, ymm3, ymm1, ymm5
     # remaining: ymm1 (sum), ymm2/3/4/6/8 (carries)
 
     # second carry reduction
@@ -127,7 +128,7 @@ fastcsum_nofold_avx2_negc:
     vpaddd ymm6, ymm6, ymm8
 
     # accumulate
-    x_padcd_negc ymm0, ymm5, ymm0, ymm1
+    xvpadcd ymm0, ymm5, ymm0, ymm1
     vpaddd ymm2, ymm2, ymm6
     vpaddd ymm3, ymm3, ymm5
     vpsubd ymm0, ymm0, ymm2
@@ -145,19 +146,19 @@ fastcsum_nofold_avx2_negc:
     vmovdqa ymm4, ymmword ptr [rdi + 64]
 
     # first reduction
-    x_padcdm_negc ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
-    x_padcdm_negc ymm3, ymm4, ymm4, (ymmword ptr [rdi + 96])
+    xvpadcdm ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
+    xvpadcdm ymm3, ymm4, ymm4, (ymmword ptr [rdi + 96])
 
     # first carry reduction
     vpaddd ymm2, ymm2, ymm4
     # remaining: ymm1/3 (sums), ymm2 (carry)
 
     # second reduction
-    x_padcd_negc ymm1, ymm4, ymm1, ymm3
+    xvpadcd ymm1, ymm4, ymm1, ymm3
     # remaining carries: ymm2/4
 
     # accumulate
-    x_padcd_negc ymm0, ymm5, ymm0, ymm1
+    xvpadcd ymm0, ymm5, ymm0, ymm1
     vpaddd ymm2, ymm2, ymm4
     vpsubd ymm0, ymm0, ymm5
     vpsubd ymm0, ymm0, ymm2
@@ -171,8 +172,8 @@ fastcsum_nofold_avx2_negc:
 
     vmovdqa ymm2, ymmword ptr [rdi]
     # reduction
-    x_padcdm_negc ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
-    x_padcd_negc ymm0, ymm5, ymm0, ymm1
+    xvpadcdm ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
+    xvpadcd ymm0, ymm5, ymm0, ymm1
     # carry reduction
     vpsubd ymm0, ymm0, ymm2
     vpsubd ymm0, ymm0, ymm5
