@@ -14,6 +14,13 @@
     vpcmpeqd \c, \s, \c
 .endm
 
+.eight:
+    .long 8
+.four:
+    .long 4
+.two:
+    .long 2
+
 .global fastcsum_nofold_avx2_v7
 
 fastcsum_nofold_avx2_v7:
@@ -27,6 +34,8 @@ fastcsum_nofold_avx2_v7:
     xor ecx, ecx                    # ecx is align scratch/flip
     xor r9, r9                      # r9 is scratch
     vpxor ymm0, ymm0, ymm0          # ymm0 is vector accumulator
+
+    vpbroadcastd ymm10, dword ptr [rip + .eight]
 
     # alignment
     cmp rsi, 64
@@ -100,15 +109,13 @@ fastcsum_nofold_avx2_v7:
     jb 128f
 
     vmovdqa ymm2, ymmword ptr [rdi]
-    xvpadcdm ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
-
     vmovdqa ymm4, ymmword ptr [rdi + 64]
-    xvpadcdm ymm3, ymm4, ymm4, (ymmword ptr [rdi + 96])
-
     vmovdqa ymm6, ymmword ptr [rdi + 128]
-    xvpadcdm ymm5, ymm6, ymm6, (ymmword ptr [rdi + 160])
-
     vmovdqa ymm8, ymmword ptr [rdi + 192]
+
+    xvpadcdm ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
+    xvpadcdm ymm3, ymm4, ymm4, (ymmword ptr [rdi + 96])
+    xvpadcdm ymm5, ymm6, ymm6, (ymmword ptr [rdi + 160])
     xvpadcdm ymm7, ymm8, ymm8, (ymmword ptr [rdi + 224])
 
     # first carry reduction
@@ -138,10 +145,7 @@ fastcsum_nofold_avx2_v7:
     vpaddd ymm0, ymm0, ymm2
 
     # finalize
-    mov edx, 8
-    vmovd xmm1, edx
-    vpbroadcastd ymm1, xmm1
-    vpaddd ymm0, ymm0, ymm1
+    vpaddd ymm0, ymm0, ymm10
 
     sub rsi, 256
     add rdi, 256
@@ -151,14 +155,14 @@ fastcsum_nofold_avx2_v7:
     cmp rsi, 128
     jb 64f
 
-    vmovdqa ymm1, ymmword ptr [rdi]
-    vmovdqa ymm5, ymmword ptr [rdi + 32]
-    vmovdqa ymm3, ymmword ptr [rdi + 64]
-    vmovdqa ymm7, ymmword ptr [rdi + 96]
+    vpbroadcastd ymm11, dword ptr [rip + .four]
+
+    vmovdqa ymm2, ymmword ptr [rdi]
+    vmovdqa ymm4, ymmword ptr [rdi + 64]
 
     # first reduction
-    xvpadcd ymm1, ymm2, ymm1, ymm5
-    xvpadcd ymm3, ymm4, ymm3, ymm7
+    xvpadcdm ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
+    xvpadcdm ymm3, ymm4, ymm4, (ymmword ptr [rdi + 96])
 
     # first carry reduction
     vpaddd ymm2, ymm2, ymm4
@@ -175,10 +179,7 @@ fastcsum_nofold_avx2_v7:
     vpaddd ymm0, ymm0, ymm5
 
     # finalize
-    mov edx, 4
-    vmovd xmm1, edx
-    vpbroadcastd ymm1, xmm1
-    vpaddd ymm0, ymm0, ymm1
+    vpaddd ymm0, ymm0, ymm11
 
     sub rsi, 128
     add rdi, 128
@@ -187,18 +188,17 @@ fastcsum_nofold_avx2_v7:
     cmp rsi, 64                     # eight qwords
     jb 32f
 
-    vmovdqa ymm1, ymmword ptr [rdi]
-    vmovdqa ymm3, ymmword ptr [rdi + 32]
+    vpbroadcastd ymm12, dword ptr [rip + .two]
+
+    vmovdqa ymm2, ymmword ptr [rdi]
     # reduction
-    xvpadcd ymm1, ymm2, ymm1, ymm3
+    xvpadcdm ymm1, ymm2, ymm2, (ymmword ptr [rdi + 32])
     xvpadcd ymm0, ymm5, ymm0, ymm1
     # carry reduction
     vpaddd ymm0, ymm0, ymm2
     vpaddd ymm0, ymm0, ymm5
     # finalize
-    vpcmpeqd ymm1, ymm1, ymm1
-    vpsubd ymm0, ymm0, ymm1
-    vpsubd ymm0, ymm0, ymm1
+    vpaddd ymm0, ymm0, ymm12
 
     sub rsi, 64
     add rdi, 64
