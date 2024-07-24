@@ -98,6 +98,7 @@ void test_all(uint16_t ref, const uint8_t *buffer, size_t size, uint64_t initial
         TEST_CSUM(ref, fastcsum_nofold_simple_opt, buffer, size, initial);
         TEST_CSUM(ref, fastcsum_nofold_vec256, buffer, size, initial);
         TEST_CSUM(ref, fastcsum_nofold_vec256_align, buffer, size, initial);
+        TEST_CSUM(ref, fastcsum_nofold_vec256_align_negc, buffer, size, initial);
         TEST_CSUM(ref, fastcsum_nofold_vec128, buffer, size, initial);
         TEST_CSUM(ref, fastcsum_nofold_vec128_align, buffer, size, initial);
     }
@@ -215,6 +216,9 @@ TEST_CASE("bench", "[!benchmark]") {
         BENCHMARK("vec128_align") {
             return fastcsum_fold_complement(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
         };
+        BENCHMARK("vec256_align_negc") {
+            return fastcsum_fold_complement(fastcsum_nofold_vec256_align_negc(pkt.data(), pkt.size(), 0));
+        };
     }
 }
 
@@ -261,6 +265,9 @@ TEST_CASE("bench-large", "[!benchmark]") {
         BENCHMARK("vec128_align") {
             return fastcsum_fold_complement(fastcsum_nofold_vec128_align(pkt.data(), pkt.size(), 0));
         };
+        BENCHMARK("vec256_align_negc") {
+            return fastcsum_fold_complement(fastcsum_nofold_vec256_align_negc(pkt.data(), pkt.size(), 0));
+        };
     }
 }
 
@@ -302,6 +309,9 @@ TEST_CASE("bench-unaligned", "[!benchmark]") {
         };
         BENCHMARK("vec128_align") {
             return fastcsum_fold_complement(fastcsum_nofold_vec128_align(pkt.get() + off, size - off, 0));
+        };
+        BENCHMARK("vec256_align_negc") {
+            return fastcsum_fold_complement(fastcsum_nofold_vec256_align_negc(pkt.get() + off, size - off, 0));
         };
     }
 }

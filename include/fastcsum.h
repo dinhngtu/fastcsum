@@ -86,6 +86,9 @@ uint64_t fastcsum_nofold_vec256(const uint8_t *ptr, size_t size, uint64_t initia
 // 256 bytes/loop 32-byte vector-based version with parallel addition and load alignment.
 uint64_t fastcsum_nofold_vec256_align(const uint8_t *ptr, size_t size, uint64_t initial);
 
+// vec256_align based on addc_negc_vec (test)
+__attribute__((deprecated)) uint64_t fastcsum_nofold_vec256_align_negc(const uint8_t *ptr, size_t size, uint64_t initial);
+
 // 128 bytes/loop 16-byte vector-based version with parallel addition.
 uint64_t fastcsum_nofold_vec128(const uint8_t *ptr, size_t size, uint64_t initial);
 

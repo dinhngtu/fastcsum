@@ -103,6 +103,14 @@ template <typename T>
     c = s == c;
 }
 
+// arithmetically, c is -carry: 0 if no overflow, all 1 (=-1) if overflow
+// therefore s+carry = s-c
+template <typename T>
+[[gnu::always_inline]] static inline void addc_negc_vec(T &s, T &c, T a, T b) {
+    s = a + b;
+    c = s < a;
+}
+
 static inline uint64_t csum_31bytes(const uint8_t *b, size_t size, uint64_t initial) {
     uint64_t ac = initial;
     uint64_t carry;

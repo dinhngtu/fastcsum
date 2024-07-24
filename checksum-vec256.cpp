@@ -202,3 +202,100 @@ extern "C" uint64_t fastcsum_nofold_vec256_align(const uint8_t *b, size_t size, 
 
     return ac;
 }
+
+extern "C" uint64_t fastcsum_nofold_vec256_align_negc(const uint8_t *b, size_t size, uint64_t initial) {
+    unsigned long long ac = initial;
+    u32x8 vac{};
+
+    bool flip = false;
+    if (size >= 32) {
+        auto align = reinterpret_cast<uintptr_t>(b) & 31;
+        if (align) {
+            auto toadvance = 32 - align;
+            flip = align & 1;
+            ac = csum_31bytes(b, toadvance, ac);
+            b += toadvance;
+            size -= toadvance;
+            if (flip)
+                ac = __builtin_bswap64(ac);
+        }
+    }
+
+    while (size >= 256) {
+        u32x8 v1, c1;
+        v1 = *(u32x8 *)(b);
+        addc_negc_vec(v1, c1, v1, *(u32x8 *)(b + 32));
+
+        u32x8 v2, c2;
+        v2 = *(u32x8 *)(b + 64);
+        addc_negc_vec(v2, c2, v2, *(u32x8 *)(b + 96));
+
+        u32x8 v3, c3;
+        v3 = *(u32x8 *)(b + 128);
+        addc_negc_vec(v3, c3, v3, *(u32x8 *)(b + 160));
+
+        u32x8 v4, c4;
+        v4 = *(u32x8 *)(b + 192);
+        addc_negc_vec(v4, c4, v4, *(u32x8 *)(b + 224));
+
+        u32x8 v5, c5;
+        addc_negc_vec(v5, c5, v1, v2);
+        u32x8 v6, c6;
+        addc_negc_vec(v6, c6, v3, v4);
+
+        u32x8 v7, c7;
+        addc_negc_vec(v7, c7, v5, v6);
+        u32x8 c;
+        addc_negc_vec(vac, c, vac, v7);
+        vac -= c + c1 + c2 + c3 + c4 + c5 + c6 + c7;
+
+        b += 256;
+        size -= 256;
+    }
+    if (size >= 128) {
+        u32x8 v1, c1;
+        v1 = *(u32x8 *)(b);
+        addc_negc_vec(v1, c1, v1, *(u32x8 *)(b + 32));
+
+        u32x8 v2, c2;
+        v2 = *(u32x8 *)(b + 64);
+        addc_negc_vec(v2, c2, v2, *(u32x8 *)(b + 96));
+
+        u32x8 v5, c5;
+        addc_negc_vec(v5, c5, v1, v2);
+
+        u32x8 c;
+        addc_negc_vec(vac, c, vac, v5);
+        vac -= c + c1 + c2 + c5;
+
+        b += 128;
+        size -= 128;
+    }
+    if (size >= 64) {
+        u32x8 v1, c1;
+        v1 = *(u32x8 *)(b);
+        addc_negc_vec(v1, c1, v1, *(u32x8 *)(b + 32));
+
+        u32x8 c;
+        addc_negc_vec(vac, c, vac, v1);
+        vac -= c + c1;
+
+        b += 64;
+        size -= 64;
+    }
+    if (size >= 32) {
+        u32x8 c;
+        addc_negc_vec(vac, c, vac, *(u32x8 *)(b));
+        vac -= c;
+
+        b += 32;
+        size -= 32;
+    }
+
+    ac = addc_fold_vec8(vac, ac);
+    ac = csum_31bytes(b, size, ac);
+    if (flip)
+        ac = __builtin_bswap64(ac);
+
+    return ac;
+}
