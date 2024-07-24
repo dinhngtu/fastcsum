@@ -10,7 +10,7 @@ fastcsum_nofold_adx_v2:
     # no stack!
 
     mov rax, rdx                    # returns primary accumulator (CF)
-    xor r9, r9                      # r9 is scratch
+    xor rdx, rdx                    # rdx is scratch
 
 128:
     cmp rsi, 128
@@ -34,7 +34,7 @@ fastcsum_nofold_adx_v2:
     adox rcx, [rdi + 104]
     adcx rax, [rdi + 112]
     adox rcx, [rdi + 120]
-    adox rax, r9                    # use r9 as zero
+    adox rax, rdx                   # use rdx as zero
     adc rax, rcx
     adc rax, 0
 
@@ -55,7 +55,7 @@ fastcsum_nofold_adx_v2:
     adox rcx, [rdi + 40]
     adcx rax, [rdi + 48]
     adox rcx, [rdi + 56]
-    adox rax, r9
+    adox rax, rdx
     adc rax, rcx
     adc rax, 0
 
@@ -75,7 +75,7 @@ fastcsum_nofold_adx_v2:
     sub rsi, 32
     add rdi, 32
 
-    # we start using r9 later so don't "adcx/adox reg, r9" any more
+    # we start using rdx later so don't "adcx/adox reg, rdx" any more
 16:
     cmp rsi, 16                     # two qwords
     jb 8f
@@ -101,8 +101,8 @@ fastcsum_nofold_adx_v2:
     cmp rsi, 4                      # one dword
     jb 2f
 
-    mov r9d, dword ptr [rdi]
-    add rax, r9
+    mov edx, dword ptr [rdi]
+    add rax, rdx
     adc rax, 0
 
     sub rsi, 4
@@ -112,8 +112,8 @@ fastcsum_nofold_adx_v2:
     cmp rsi, 2                      # one word
     jb 1f
 
-    movzx r9, word ptr [rdi]
-    add rax, r9
+    movzx edx, word ptr [rdi]
+    add rax, rdx
     adc rax, 0
 
     sub rsi, 2
@@ -123,8 +123,8 @@ fastcsum_nofold_adx_v2:
     cmp rsi, 1                      # last byte
     jb 0f
 
-    movzx r9, byte ptr [rdi]
-    add rax, r9
+    movzx edx, byte ptr [rdi]
+    add rax, rdx
     adc rax, 0
 
 0:

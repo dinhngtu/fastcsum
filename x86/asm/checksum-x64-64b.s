@@ -10,7 +10,6 @@ fastcsum_nofold_x64_64b:
     # no stack!
 
     mov rax, rdx                    # returns primary accumulator (CF)
-    xor r9, r9                      # r9 is scratch
 
 64:
     cmp rsi, 64                     # eight qwords
@@ -68,8 +67,8 @@ fastcsum_nofold_x64_64b:
     cmp rsi, 4                      # one dword
     jb 2f
 
-    mov r9d, dword ptr [rdi]
-    add rax, r9
+    mov ecx, dword ptr [rdi]
+    add rax, rcx
     adc rax, 0
 
     sub rsi, 4
@@ -79,8 +78,8 @@ fastcsum_nofold_x64_64b:
     cmp rsi, 2                      # one word
     jb 1f
 
-    movzx r9, word ptr [rdi]
-    add rax, r9
+    movzx ecx, word ptr [rdi]
+    add rax, rcx
     adc rax, 0
 
     sub rsi, 2
@@ -90,8 +89,8 @@ fastcsum_nofold_x64_64b:
     cmp rsi, 1                      # last byte
     jb 0f
 
-    movzx r9, byte ptr [rdi]
-    add rax, r9
+    movzx ecx, byte ptr [rdi]
+    add rax, rcx
     adc rax, 0
 
 0:
