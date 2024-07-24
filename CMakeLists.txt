@@ -80,6 +80,7 @@ if (ENABLE_AVX2)
             x86/asm/checksum-avx2-v5.s
             x86/asm/checksum-avx2-v6.s
             x86/asm/checksum-avx2-v7.s
+            x86/asm/checksum-avx2-negc.s
     )
     target_compile_definitions(fastcsum PRIVATE FASTCSUM_ENABLE_AVX2)
     set_source_files_properties(
