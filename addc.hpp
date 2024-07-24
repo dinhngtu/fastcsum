@@ -108,7 +108,8 @@ template <typename T>
 template <typename T>
 [[gnu::always_inline]] static inline void addc_negc_vec(T &s, T &c, T a, T b) {
     s = a + b;
-    c = s < a;
+    c = s < a ? s : a;
+    c = s == c;
 }
 
 static inline uint64_t csum_31bytes(const uint8_t *b, size_t size, uint64_t initial) {
