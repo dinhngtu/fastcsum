@@ -110,6 +110,14 @@ TEST_CASE("checksum") {
     test_all(ref, pkt.data(), pkt.size(), 0);
 }
 
+TEST_CASE("checksum-zero") {
+    auto size = GENERATE(Catch::Generators::range(1, 1501));
+    auto pkt = create_packet(size);
+    memset(pkt.data(), 0, pkt.size());
+    auto ref = checksum_ref(pkt.data(), pkt.size());
+    test_all(ref, pkt.data(), pkt.size(), 0);
+}
+
 // https://github.com/snabbco/snabb/commit/0068df61213d030ac6064f0d5db8705373e7e3c7
 TEST_CASE("checksum-carry") {
     auto size = GENERATE(Catch::Generators::range(1, 1025));
@@ -140,6 +148,16 @@ TEST_CASE("checksum-align16") {
     auto pkt = create_packet(16, size);
     auto ref = checksum_ref(pkt.get() + off, size - off);
     test_all(ref, pkt.get() + off, size - off, 0);
+}
+
+TEST_CASE("checksum-stride1") {
+    auto stride = GENERATE(16, 32, 64, 128, 256, 512);
+    auto size = stride * 2;
+    auto pkt = create_packet(stride, stride * 2);
+    memset(&pkt[0], 0, size);
+    pkt[0] = 1;
+    auto ref = checksum_ref(&pkt[0], stride);
+    test_all(ref, &pkt[0], stride, 0);
 }
 
 TEST_CASE("checksum-rfc1071") {
