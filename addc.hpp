@@ -103,8 +103,7 @@ template <typename T>
     c = s == c;
 }
 
-// arithmetically, c is -carry: 0 if no overflow, all 1 (=-1) if overflow
-// therefore s+carry = s-c
+// addc_negc is broken if b == 0 (would result in incorrect overflow)
 template <typename T>
 [[gnu::always_inline]] static inline void addc_negc_vec(T &s, T &c, T a, T b) {
     s = a + b;
