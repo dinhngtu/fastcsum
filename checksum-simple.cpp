@@ -71,6 +71,8 @@ extern "C" uint64_t fastcsum_nofold_simple_align(const uint8_t *b, size_t size, 
         auto align = reinterpret_cast<uintptr_t>(b) & 3;
         if (align) {
             flip = align & 1;
+            if (flip)
+                ac = __builtin_bswap64(ac);
             auto tmp = *reinterpret_cast<const u32u *>(&b[0]);
             if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
                 tmp >>= align * 8;

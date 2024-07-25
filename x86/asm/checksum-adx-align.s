@@ -21,6 +21,12 @@ fastcsum_nofold_adx_align:
     mov ecx, edi
     and ecx, 7                      # ecx is now masked offset
     jz 128f
+
+    test ecx, 1
+    jz 0f
+    bswap rax
+
+0:
     mov r8, [rdi]
     mov edx, 8
     sub edx, ecx                    # edx is now number of bytes to advance
