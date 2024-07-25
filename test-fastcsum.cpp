@@ -191,9 +191,6 @@ TEST_CASE("bench", "[!benchmark]") {
         };
     }
     if (fastcsum_avx2_usable()) {
-        BENCHMARK("avx2_v6") {
-            return fastcsum_fold_complement(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
-        };
         BENCHMARK("avx2_v7") {
             return fastcsum_fold_complement(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
         };
@@ -231,15 +228,15 @@ TEST_CASE("bench-large", "[!benchmark]") {
     BENCHMARK("x64_128b") {
         return fastcsum_fold_complement(fastcsum_nofold_x64_128b(pkt.data(), pkt.size(), 0));
     };
+    BENCHMARK("x64_64b") {
+        return fastcsum_fold_complement(fastcsum_nofold_x64_64b(pkt.data(), pkt.size(), 0));
+    };
     if (fastcsum_adx_usable()) {
         BENCHMARK("adx_v2") {
             return fastcsum_fold_complement(fastcsum_nofold_adx_v2(pkt.data(), pkt.size(), 0));
         };
     }
     if (fastcsum_avx2_usable()) {
-        BENCHMARK("avx2_v6") {
-            return fastcsum_fold_complement(fastcsum_nofold_avx2_v6(pkt.data(), pkt.size(), 0));
-        };
         BENCHMARK("avx2_v7") {
             return fastcsum_fold_complement(fastcsum_nofold_avx2_v7(pkt.data(), pkt.size(), 0));
         };
@@ -279,9 +276,6 @@ TEST_CASE("bench-unaligned", "[!benchmark]") {
         };
     }
     if (fastcsum_avx2_usable()) {
-        BENCHMARK("avx2_v6") {
-            return fastcsum_fold_complement(fastcsum_nofold_avx2_v6(pkt.get() + off, size - off, 0));
-        };
         BENCHMARK("avx2_v7") {
             return fastcsum_fold_complement(fastcsum_nofold_avx2_v7(pkt.get() + off, size - off, 0));
         };

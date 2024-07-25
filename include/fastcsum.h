@@ -70,7 +70,7 @@ __attribute__((deprecated)) uint64_t fastcsum_nofold_avx2_v4(const uint8_t *ptr,
 __attribute__((deprecated)) uint64_t fastcsum_nofold_avx2_v5(const uint8_t *ptr, size_t size, uint64_t initial);
 
 // `avx2_v5` with load optimization.
-uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uint64_t initial);
+__attribute__((deprecated)) uint64_t fastcsum_nofold_avx2_v6(const uint8_t *ptr, size_t size, uint64_t initial);
 
 // 256 bytes/loop plain assembly version with parallel addition and load alignment.
 uint64_t fastcsum_nofold_avx2_v7(const uint8_t *ptr, size_t size, uint64_t initial);
