@@ -5,12 +5,12 @@ extern "C" uint64_t fastcsum_nofold_simple(const uint8_t *b, size_t size, uint64
     uint64_t ac = initial;
 
     while (size >= 4) {
-        ac += *reinterpret_cast<const uint32_t *>(&b[0]);
+        ac += *reinterpret_cast<const u32u *>(&b[0]);
         b += 4;
         size -= 4;
     }
     if (size >= 2) {
-        ac += *reinterpret_cast<const uint16_t *>(&b[0]);
+        ac += *reinterpret_cast<const u16u *>(&b[0]);
         b += 2;
         size -= 2;
     }
@@ -28,7 +28,7 @@ extern "C" uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint6
     uint64_t ac = initial;
 
     while (size >= 8) {
-        auto val = *reinterpret_cast<const uint64_t *>(&b[0]);
+        auto val = *reinterpret_cast<const u64u *>(&b[0]);
         ac += val;
         if (ac < val)
             ac++;
@@ -36,7 +36,7 @@ extern "C" uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint6
         size -= 8;
     }
     if (size >= 4) {
-        auto val = *reinterpret_cast<const uint32_t *>(&b[0]);
+        auto val = *reinterpret_cast<const u32u *>(&b[0]);
         ac += val;
         if (ac < val)
             ac++;
@@ -44,7 +44,7 @@ extern "C" uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint6
         size -= 4;
     }
     if (size >= 2) {
-        auto val = *reinterpret_cast<const uint16_t *>(&b[0]);
+        auto val = *reinterpret_cast<const u16u *>(&b[0]);
         ac += val;
         if (ac < val)
             ac++;

@@ -13,6 +13,7 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 
 #include "fastcsum.h"
+#include "addc.hpp"
 
 #define TEST_CSUM(ref, impl, b, size, initial) \
     do { \
@@ -23,14 +24,14 @@
 static uint16_t checksum_ref(const uint8_t *buffer, int size) {
     unsigned long cksum = 0;
     while (size > 1) {
-        cksum += *(const uint16_t *)buffer;
+        cksum += *(const u16u *)buffer;
         buffer += 2;
         size -= 2;
     }
     // https://www.rfc-editor.org/errata/eid3133
     if (size) {
         uint16_t last = 0;
-        *(uint8_t *)&last = *(const uint8_t *)buffer;
+        *(uint8_t *)&last = *buffer;
         cksum += last;
     }
 

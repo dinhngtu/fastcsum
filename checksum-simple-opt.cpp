@@ -5,12 +5,12 @@ extern "C" uint64_t fastcsum_nofold_simple_opt(const uint8_t *b, size_t size, ui
     uint64_t ac = 0;
 
     while (size >= 4) {
-        ac += *reinterpret_cast<const uint32_t *>(&b[0]);
+        ac += *reinterpret_cast<const u32u *>(&b[0]);
         b += 4;
         size -= 4;
     }
     if (size >= 2) {
-        ac += *reinterpret_cast<const uint16_t *>(&b[0]);
+        ac += *reinterpret_cast<const u16u *>(&b[0]);
         b += 2;
         size -= 2;
     }

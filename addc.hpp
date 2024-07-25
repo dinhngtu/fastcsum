@@ -6,6 +6,10 @@
 #include <x86intrin.h>
 #endif
 
+using u16u [[gnu::aligned(1), gnu::may_alias]] = uint16_t;
+using u32u [[gnu::aligned(1), gnu::may_alias]] = uint32_t;
+using u64u [[gnu::aligned(1), gnu::may_alias]] = uint64_t;
+
 template <typename T>
 [[gnu::always_inline]] static inline T addc_fallback(T a, T b, T cin, T *cout) {
     T s;
@@ -107,28 +111,28 @@ static inline uint64_t csum_31bytes(const uint8_t *b, size_t size, uint64_t init
     uint64_t ac = initial;
     uint64_t carry;
     if (size >= 16) {
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
+        ac = addc(ac, *reinterpret_cast<const u64u *>(&b[0]), 0, &carry);
         // add an extra carry add here to help older gcc at the risk of adding an unnecessary adc
         ac += carry;
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[8]), 0, &carry);
+        ac = addc(ac, *reinterpret_cast<const u64u *>(&b[8]), 0, &carry);
         ac += carry;
         b += 16;
         size -= 16;
     }
     if (size >= 8) {
-        ac = addc(ac, *reinterpret_cast<const uint64_t *>(&b[0]), 0, &carry);
+        ac = addc(ac, *reinterpret_cast<const u64u *>(&b[0]), 0, &carry);
         ac += carry;
         b += 8;
         size -= 8;
     }
     if (size >= 4) {
-        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint32_t *>(&b[0])), 0, &carry);
+        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const u32u *>(&b[0])), 0, &carry);
         ac += carry;
         b += 4;
         size -= 4;
     }
     if (size >= 2) {
-        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const uint16_t *>(&b[0])), 0, &carry);
+        ac = addc(ac, static_cast<uint64_t>(*reinterpret_cast<const u16u *>(&b[0])), 0, &carry);
         ac += carry;
         b += 2;
         size -= 2;
