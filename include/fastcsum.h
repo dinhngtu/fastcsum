@@ -18,11 +18,17 @@ extern "C" {
 // Unrolled 32 bytes/loop add-with-carry implementation.
 uint64_t fastcsum_nofold_generic64(const uint8_t *b, size_t size, uint64_t initial);
 
+// Unrolled 32 bytes/loop qword-aligned add-with-carry implementation.
+uint64_t fastcsum_nofold_generic64_align(const uint8_t *b, size_t size, uint64_t initial);
+
 // Adds 4 bytes per loop in a 64-bit register.
 uint64_t fastcsum_nofold_simple(const uint8_t *b, size_t size, uint64_t initial);
 
 // Non-unrolled version of fastcsum_nofold_generic64.
 uint64_t fastcsum_nofold_simple2(const uint8_t *b, size_t size, uint64_t initial);
+
+// Dword-aligned simple version.
+uint64_t fastcsum_nofold_simple_align(const uint8_t *b, size_t size, uint64_t initial);
 
 // 64 bytes/loop assembly implementation.
 uint64_t fastcsum_nofold_x64_128b(const uint8_t *ptr, size_t size, uint64_t initial);

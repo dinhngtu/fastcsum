@@ -72,8 +72,10 @@ static std::vector<uint8_t> create_packet_carry(size_t size) {
 
 void test_all(uint16_t ref, const uint8_t *buffer, size_t size, uint64_t initial) {
     TEST_CSUM(ref, fastcsum_nofold_generic64, buffer, size, initial);
+    TEST_CSUM(ref, fastcsum_nofold_generic64_align, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_simple, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_simple2, buffer, size, initial);
+    TEST_CSUM(ref, fastcsum_nofold_simple_align, buffer, size, initial);
 #if defined(__x86_64__)
     TEST_CSUM(ref, fastcsum_nofold_x64_128b, buffer, size, initial);
     TEST_CSUM(ref, fastcsum_nofold_x64_64b, buffer, size, initial);
