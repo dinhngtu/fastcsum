@@ -21,8 +21,8 @@
     } while (0);
 
 // https://stackoverflow.com/a/8845286/8642889
-static uint16_t checksum_ref(const uint8_t *buffer, int size) {
-    unsigned long cksum = 0;
+static uint16_t checksum_ref(const uint8_t *buffer, int size, uint16_t initial) {
+    unsigned long cksum = initial;
     while (size > 1) {
         cksum += *(const u16u *)buffer;
         buffer += 2;
@@ -107,59 +107,91 @@ void test_all(uint16_t ref, const uint8_t *buffer, size_t size, uint64_t initial
 }
 
 TEST_CASE("checksum") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
     auto size = GENERATE(Catch::Generators::range(1, 1501));
     auto pkt = create_packet(size);
-    auto ref = checksum_ref(pkt.data(), pkt.size());
-    test_all(ref, pkt.data(), pkt.size(), 0);
+    auto ref = checksum_ref(pkt.data(), pkt.size(), initial);
+    test_all(ref, pkt.data(), pkt.size(), initial);
 }
 
 TEST_CASE("checksum-zero") {
     auto size = GENERATE(Catch::Generators::range(1, 1501));
     auto pkt = create_packet(size);
     memset(pkt.data(), 0, pkt.size());
-    auto ref = checksum_ref(pkt.data(), pkt.size());
+    auto ref = checksum_ref(pkt.data(), pkt.size(), 0);
     test_all(ref, pkt.data(), pkt.size(), 0);
 }
 
 // https://github.com/snabbco/snabb/commit/0068df61213d030ac6064f0d5db8705373e7e3c7
 TEST_CASE("checksum-carry") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
     auto size = GENERATE(Catch::Generators::range(1, 1025));
     auto pkt = create_packet_carry(size);
-    auto ref = checksum_ref(pkt.data(), pkt.size());
-    test_all(ref, pkt.data(), pkt.size(), 0);
+    auto ref = checksum_ref(pkt.data(), pkt.size(), initial);
+    test_all(ref, pkt.data(), pkt.size(), initial);
 }
 
 TEST_CASE("checksum-align") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
     auto pkt = create_packet(1627);
     auto off = GENERATE(range(0, 128));
-    auto size = GENERATE(range(1, 1627 - 127));
-    auto ref = checksum_ref(&pkt[off], size);
-    test_all(ref, &pkt[off], size, 0);
+    auto size = GENERATE(range(1024, 1627 - 127));
+    auto ref = checksum_ref(&pkt[off], size, initial);
+    test_all(ref, &pkt[off], size, initial);
 }
 
 TEST_CASE("checksum-align32") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
     auto size = GENERATE(range(32, 64));
     auto off = 31;
     auto pkt = create_packet(32, size);
-    auto ref = checksum_ref(pkt.get() + off, size - off);
-    test_all(ref, pkt.get() + off, size - off, 0);
+    auto ref = checksum_ref(pkt.get() + off, size - off, initial);
+    test_all(ref, pkt.get() + off, size - off, initial);
 }
 
 TEST_CASE("checksum-align16") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
     auto size = GENERATE(range(16, 32));
     auto off = 15;
     auto pkt = create_packet(16, size);
-    auto ref = checksum_ref(pkt.get() + off, size - off);
-    test_all(ref, pkt.get() + off, size - off, 0);
+    auto ref = checksum_ref(pkt.get() + off, size - off, initial);
+    test_all(ref, pkt.get() + off, size - off, initial);
+}
+
+TEST_CASE("checksum-align8") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
+    auto size = GENERATE(range(8, 16));
+    auto off = 7;
+    auto pkt = create_packet(8, size);
+    auto ref = checksum_ref(pkt.get() + off, size - off, initial);
+    test_all(ref, pkt.get() + off, size - off, initial);
+}
+
+TEST_CASE("checksum-align4") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
+    auto size = GENERATE(range(4, 8));
+    auto off = 3;
+    auto pkt = create_packet(4, size);
+    auto ref = checksum_ref(pkt.get() + off, size - off, initial);
+    test_all(ref, pkt.get() + off, size - off, initial);
+}
+
+TEST_CASE("checksum-align2") {
+    uint16_t initial = GENERATE(0, 0x1234, 0xfedc);
+    auto size = GENERATE(range(2, 4));
+    auto off = 1;
+    auto pkt = create_packet(2, size);
+    auto ref = checksum_ref(pkt.get() + off, size - off, initial);
+    test_all(ref, pkt.get() + off, size - off, initial);
 }
 
 TEST_CASE("checksum-stride1") {
-    auto stride = GENERATE(16, 32, 64, 128, 256, 512);
+    auto stride = GENERATE(2, 4, 8, 16, 32, 64, 128, 256, 512);
     auto size = stride * 2;
     auto pkt = create_packet(stride, stride * 2);
     memset(&pkt[0], 0, size);
     pkt[0] = 1;
-    auto ref = checksum_ref(&pkt[0], stride);
+    auto ref = checksum_ref(&pkt[0], stride, 0);
     test_all(ref, &pkt[0], stride, 0);
 }
 
